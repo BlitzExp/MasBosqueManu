@@ -5,25 +5,38 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Brand palette from design
+export const Palette = {
+  ivory: '#F5F9E9', // background
+  cocoa: '#D16014', // important / attention
+  hunter: '#345830', // buttons / icons
+  raisin: '#2D232E', // contrast / dark bg
+  asparagus: '#88AB6A', // interactive / movement
+} as const;
+
+const tintColorLight = Palette.hunter;
+const tintColorDark = Palette.asparagus;
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: Palette.raisin,
+    background: Palette.ivory,
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: Palette.hunter,
+    tabIconDefault: '#6b8a75',
     tabIconSelected: tintColorLight,
+    attention: Palette.cocoa,
+    interactive: Palette.asparagus,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: Palette.ivory,
+    background: Palette.raisin,
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: Palette.asparagus,
+    tabIconDefault: '#7aa36c',
     tabIconSelected: tintColorDark,
+    attention: Palette.cocoa,
+    interactive: Palette.asparagus,
   },
 };
 
