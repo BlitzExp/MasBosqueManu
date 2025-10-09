@@ -13,6 +13,7 @@ type Props = {
 export default function NotifyButton({ title, message }: Props) {
   const { ready, token, simulator, sendTest } = useNotifications();
 
+  const onPress = async () => {
     try {
       const r = await sendTest(title ?? "Hello", message ?? "Triggered from button");
       if (r.fallback) {
