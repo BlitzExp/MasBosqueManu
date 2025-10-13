@@ -1,10 +1,12 @@
 import React from "react";
-import { SafeAreaView, View, Text } from "react-native";
+import { SafeAreaView, View, Text, Button } from "react-native";
 import NotificationsProvider from "../../providers/NotificationsProvider";
 import NotifyButton from "../../components/NotifyButton";
 import { Palette, Fonts } from "../../constants/theme";
+import { useRouter } from 'expo-router';
 
 export default function App() {
+  const router = useRouter();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Palette.ivory }}>
       <View
@@ -38,6 +40,7 @@ export default function App() {
           Modular Notifications Demo
         </Text>
         <NotifyButton title="Server push (with fallback)" message="From modular App" />
+        <Button title="Ir al map" onPress={() => router.replace("/mapView")}/>
       </View>
     </SafeAreaView>
   );
