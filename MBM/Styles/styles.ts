@@ -63,13 +63,12 @@ export default StyleSheet.create({
   },
   
   buttonStart: {
-    marginTop: 10,
     marginBottom: 10,
     backgroundColor: colors.buttonBackground,
     borderRadius: 15,
-    paddingHorizontal: 20,
     width: 'auto',
     height: 40,
+    minWidth: '80%',
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',

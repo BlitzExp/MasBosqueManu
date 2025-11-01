@@ -55,11 +55,9 @@ export default function logIn() {
             onChangeText={setPassword}
             style={styles.inputField}
           />
-          <View style={styles.buttonStart}>
-            <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
-              <Text style={styles.buttonStartText}>Iniciar Sesión</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
+            <Text style={styles.buttonStartText}>Iniciar Sesión</Text>
+          </TouchableOpacity>
 
           <Text style={styles.URLText} onPress={() => router.replace('/register') }>
             Registar Usuario
