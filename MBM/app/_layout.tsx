@@ -10,17 +10,26 @@ export const unstable_settings = {
   anchor: '(tabs)',
 };
 
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <NotificationsProvider>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="logIn" options={{ headerShown: false }} />
+          <Stack.Screen name="register" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false, navigationBarHidden: true }} />
+          <Stack.Screen name="mapView" options={{ headerShown: false }} />
+          <Stack.Screen name="adminNotifications" options={{ headerShown: false }} />
+          <Stack.Screen name="recordsAdmin" options={{ headerShown: false }} />
+          <Stack.Screen name="editProfile" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style="auto" />  
       </NotificationsProvider>
     </ThemeProvider>
   );

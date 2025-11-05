@@ -1,47 +1,36 @@
-import React from "react";
-import { SafeAreaView, View, Text, Button } from "react-native";
-import NotificationsProvider from "../../providers/NotificationsProvider";
-import NotifyButton from "../../components/NotifyButton";
-import { Palette, Fonts } from "../../constants/theme";
+import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import { Image, Text, View } from 'react-native';
+import styles from '../../Styles/styles';
 
 export default function App() {
   const router = useRouter();
+
+  const [fontsLoaded] = useFonts({
+    'Jura-Regular': require('../../assets/Fonts/Jura-Regular.ttf'),
+    'BebasNeue-Regular': require('../../assets/Fonts/BebasNeue-Regular.ttf'),
+    'Jura-Bold': require('../../assets/Fonts/Jura-Bold.ttf'),
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.replace('/mapView'); 
+  }, 2000); 
+    return () => clearTimeout(timer);
+  }, [router]);
+
+  if (!fontsLoaded) {
+    return null; 
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Palette.ivory }}>
-      <View
-        style={{
-          flex: 1,
-          padding: 24,
-          gap: 20,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 26,
-            fontWeight: "800",
-            textAlign: "center",
-            color: Palette.raisin,
-          }}
-        >
-          Home
-        </Text>
-        <Text
-          style={{
-            fontSize: 15,
-            opacity: 0.8,
-            textAlign: "center",
-            color: Palette.hunter,
-            maxWidth: 320,
-          }}
-        >
-          Modular Notifications Demo
-        </Text>
-        <NotifyButton title="Server push (with fallback)" message="From modular App" />
-        <Button title="Ir al map" onPress={() => router.replace("/mapView")}/>
-      </View>
-    </SafeAreaView>
+    <View style={styles.Background}>
+      <Image 
+        source={require('../../assets/images/Loading.png')} 
+        style={styles.loadingImage} 
+      />
+      <Text style={styles.loadingtext}>Cargando...</Text>
+    </View>
   );
 }
