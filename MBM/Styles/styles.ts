@@ -2,11 +2,14 @@ import { StyleSheet } from 'react-native';
 
 const colors = {
   background: 'rgba(255, 249, 239, 1)',
+  navbackground: 'rgba(231, 222, 210, 1)',
   white: 'rgba(255, 255, 255, 1)',
   buttonBackground: 'rgba(99, 161, 91, 1)',
   buttonBackgroundPress: 'rgba(79, 130, 72, 1)',
   gray: 'rgba(54, 54, 54, 1)',
+  greenletters: '#497841',
 };
+
 
 const fonts = {
     Jura : 'Jura-Regular',
@@ -15,6 +18,76 @@ const fonts = {
 }
 
 export default StyleSheet.create({
+
+  // Loading Screen Styles
+  loadingtext: {
+    paddingTop: 20,
+    fontSize: 36,
+    fontFamily: fonts.JuraBold,
+    color: colors.greenletters,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingImage: {
+    alignContent: 'center',
+    justifyContent: 'center',
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+  },
+
+  // Navigation Bar Styles
+  navBar: {
+    position: 'absolute',
+    top: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '95%',
+    alignContent: 'center',
+    alignSelf: 'center',
+    height: 50,
+    backgroundColor: colors.navbackground,
+    borderWidth: 2,
+    borderColor: colors.background,
+    borderRadius: 30,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  activeNavItemMap: {
+    backgroundColor: colors.buttonBackground,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+  },
+  activeNavItem: {
+    backgroundColor: colors.buttonBackground,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+  },
+  activeNavItemProfile: {
+    backgroundColor: colors.buttonBackground,
+    borderTopRightRadius: 30,
+    borderBottomRightRadius: 30,
+  },
+  navIcon: {
+    fontSize: 24,
+    color: colors.gray,
+  },
+  activeNavIcon: {
+    color: colors.white,
+  },
+  navtext:
+  {
+    color: colors.gray,
+  },
+  activeText: {
+    color: colors.white,
+  },
+
+  // General Styles 
   Background: {
     alignItems: 'center',
     flex: 1,
@@ -80,7 +153,6 @@ export default StyleSheet.create({
   buttonStartText: {
     color: colors.white,
     fontFamily: fonts.BebasNeue,
-    // Separacion de caracteres
     letterSpacing: 3,
     fontSize: 24,
   },

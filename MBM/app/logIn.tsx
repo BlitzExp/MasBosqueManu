@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Button, Text, View, TouchableOpacity  } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
+import NavigationBar from '@/components/ui/NavigationBar';
 
-import { useFonts } from 'expo-font';
+
 
 import styles from '../Styles/styles';
 
@@ -16,21 +17,6 @@ export default function logIn() {
     // Llama al Controlador de Autenticación aquí
     console.log('Username:', username);
     console.log('Password:', password);
-  }
-
-  //Pasar esto a pantalla de carga
-  const [fontsLoaded] = useFonts({
-    'Jura-Regular': require('../assets/Fonts/Jura-Regular.ttf'),
-    'BebasNeue-Regular': require('../assets/Fonts/BebasNeue-Regular.ttf'),
-    'Jura-Bold': require('../assets/Fonts/Jura-Bold.ttf'),
-  });
-
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.Background}>
-        <ActivityIndicator size="large" color="#000" />
-      </View>
-    );
   }
 
 
@@ -63,6 +49,8 @@ export default function logIn() {
             Registar Usuario
           </Text>
         </View>
+
+        <NavigationBar userType='user' currentTab="profile"/>
       </View>
       
     </GestureHandlerRootView>
