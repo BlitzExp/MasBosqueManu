@@ -58,7 +58,7 @@ export default function register() {
                 <Text style={styles.buttonStartText}>Registrar</Text>
               </TouchableOpacity>
     
-              <Text style={styles.URLText} onPress={() => router.replace('/logIn') }>
+              <Text style={styles.URLText} onPress={() => router.replace('/LogIn') }>
                 Iniciar Sesión
               </Text>
             </View>

@@ -20,7 +20,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <NotificationsProvider>
         <Stack>
-          <Stack.Screen name="logIn" options={{ headerShown: false }} />
+          <Stack.Screen name="LogIn" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false, navigationBarHidden: true }} />
           <Stack.Screen name="mapView" options={{ headerShown: false }} />

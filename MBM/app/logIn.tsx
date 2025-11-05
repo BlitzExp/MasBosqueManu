@@ -9,7 +9,7 @@ import NavigationBar from '@/components/ui/NavigationBar';
 
 import styles from '../Styles/styles';
 
-export default function logIn() {
+export default function LogIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
