@@ -6,7 +6,7 @@ import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler'
 
 import styles from '../Styles/styles';
 
-export default function register() {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
@@ -58,7 +58,7 @@ export default function register() {
                 <Text style={styles.buttonStartText}>Registrar</Text>
               </TouchableOpacity>
     
-              <Text style={styles.URLText} onPress={() => router.replace('/LogIn') }>
+              <Text style={styles.URLText} onPress={() => router.replace('/logIn') }>
                 Iniciar Sesión
               </Text>
             </View>
