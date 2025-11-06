@@ -6,7 +6,7 @@ import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler'
 
 import styles from '../Styles/styles';
 
-export default function register() {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');

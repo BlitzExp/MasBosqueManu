@@ -1,7 +1,7 @@
 import { Button, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function dailyJournal() {
+export default function DailyJournal() {
   const router = useRouter();
   return (
     <View>

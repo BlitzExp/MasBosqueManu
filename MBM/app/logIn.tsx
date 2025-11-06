@@ -8,7 +8,7 @@ import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler'
 
 import styles from '../Styles/styles';
 
-export default function logIn() {
+export default function LogIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 

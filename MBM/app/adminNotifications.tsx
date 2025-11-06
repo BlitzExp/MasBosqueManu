@@ -1,7 +1,7 @@
 import { Button, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function adminNotifications() {
+export default function AdminNotifications() {
   const router = useRouter();
   return (
     <View>
