@@ -18,7 +18,7 @@ export default function NavigationBar({ userType, currentTab } : { userType: 'ad
     const alert = currentTab === 'alert';
 
     return (
-        <View>
+        <View style={styles.navBarWrapper}>
             {isAdmin && (
                 <View style={styles.navBar}>
                     <TouchableOpacity style={[styles.navItem, mapView && styles.activeNavItemMap]} onPress={() => router.replace('/mapView')}>

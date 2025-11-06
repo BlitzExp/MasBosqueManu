@@ -37,9 +37,17 @@ export default StyleSheet.create({
   },
 
   // Navigation Bar Styles
-  navBar: {
+  navBarWrapper: {
     position: 'absolute',
-    top: 20,
+    left: 0,
+    right: 0,
+    bottom: 30,
+    alignItems: 'center',
+    zIndex: 1000,
+    elevation: 10,
+  },
+
+  navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
