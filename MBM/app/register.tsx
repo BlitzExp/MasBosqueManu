@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Button, Text, View, TouchableOpacity  } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
+import NavigationBar from '../components/ui/NavigationBar';
 
 import styles from '../Styles/styles';
 
@@ -63,7 +64,7 @@ export default function Register() {
               </Text>
             </View>
           </View>
-          
+          <NavigationBar userType='user' currentTab="profile" />
         </GestureHandlerRootView>
   );
 }

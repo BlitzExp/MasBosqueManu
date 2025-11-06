@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
-
+import NavigationBar from '../components/ui/NavigationBar';
 
 
 import styles from '../Styles/styles';
@@ -48,8 +48,7 @@ export default function LogIn() {
             Registar Usuario
           </Text>
         </View>
-
-        
+        <NavigationBar userType='user' currentTab="profile" />
       </View>
     </GestureHandlerRootView>
   );

@@ -1,7 +1,6 @@
-import React from 'react';
-import { StyleSheet, View} from 'react-native';
 import { useRouter } from 'expo-router';
-import MapView, {Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { StyleSheet, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import NavigationBar from '../components/ui/NavigationBar';
 
 const pins = [
@@ -70,11 +69,7 @@ export default function MapScreen() {
           />
         ))}
       </MapView>
-      <View style={styles.overlayContainer}>
-        <View style={{ pointerEvents: 'auto' }}>
           <NavigationBar userType='user' currentTab="mapView" />
-        </View>
-      </View>
     </View>
   );
 }
