@@ -13,7 +13,6 @@ export default function LogIn() {
   const [password, setPassword] = useState('');
 
   const handleSubmit = () => {
-    // Llama al Controlador de Autenticación aquí
     console.log('Username:', username);
     console.log('Password:', password);
   }
@@ -22,7 +21,7 @@ export default function LogIn() {
   const router = useRouter();
   return (
     <GestureHandlerRootView>
-      <View style={styles.Background}>
+      <View style={styles.BackgroundForms}>
         <View style={styles.form}>
           <Text style={styles.textTitle}>Iniciar Sesión</Text>
           <Text style={styles.textInput}>Usuario</Text>

@@ -25,7 +25,7 @@ export default function App() {
   }
 
   return (
-    <View style={styles.Background}>
+    <View style={styles.BackgroundForms}>
       <Image 
         source={require('../../assets/images/Loading.png')} 
         style={styles.loadingImage} 

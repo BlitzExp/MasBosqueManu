@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 
+
 const colors = {
   background: 'rgba(255, 249, 239, 1)',
   navbackground: 'rgba(231, 222, 210, 1)',
@@ -7,7 +8,10 @@ const colors = {
   buttonBackground: 'rgba(99, 161, 91, 1)',
   buttonBackgroundPress: 'rgba(79, 130, 72, 1)',
   gray: 'rgba(54, 54, 54, 1)',
+  black: 'rgba(0, 0, 0, 1)',
   greenletters: '#497841',
+  inputBackground: '#E6E0E9',
+  redButton: '#EC6200',
 };
 
 
@@ -97,6 +101,10 @@ export default StyleSheet.create({
 
   // General Styles 
   Background: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  BackgroundForms: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
@@ -164,6 +172,9 @@ export default StyleSheet.create({
     letterSpacing: 3,
     fontSize: 24,
   },
+
+
+  //estilos para editar perfil
   inputField: {
     height: 40,
     borderColor: colors.gray,
@@ -172,4 +183,75 @@ export default StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 8,
     },
+    userInputContainer: {
+      width: '85%',
+      alignSelf: 'center',
+      borderRadius: 20,
+      marginTop: 20,
+      backgroundColor: colors.inputBackground,
+    },
+    HeaderText:
+    {
+      marginTop: 100,
+      fontFamily: fonts.BebasNeue,
+      fontSize: 36,
+      lineHeight: 38,
+      letterSpacing: 2,
+      paddingLeft: '10%',
+      textAlign: 'left',
+    },
+    Separator: 
+    {
+      borderWidth: 2,
+      borderColor: colors.gray,
+      marginHorizontal: '5%',
+    },
+    fieldName:
+    {
+      paddingLeft: '5%',
+      color : colors.gray,
+      fontSize: 12,
+      letterSpacing: 0.4,
+      lineHeight: 16,
+      marginTop: 10,
+    },
+    fieldInput: 
+    {
+      color: colors.black,
+      fontSize: 16,
+      paddingTop: 5,
+      letterSpacing: 0.5,
+      paddingLeft: '7%',
+      marginBottom: 10,
+    },
+    passwordContainer:
+    {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingRight: '10%',
+    },
+    Icons:
+    {
+      alignContent: 'flex-end',
+    },
+
+    //Red button
+    redButton:
+    {
+      backgroundColor: colors.redButton,
+      borderRadius: 20,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      justifyContent: 'center',
+      width : '70%',
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginTop: 30,
+    },
+    redButtonText: {
+      color: colors.white,
+      letterSpacing: 0.1,
+      fontSize: 16,
+    }
+
 });

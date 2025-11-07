@@ -22,7 +22,7 @@ export default function Register() {
   const router = useRouter();
   return (
     <GestureHandlerRootView>
-          <View style={styles.Background}>
+          <View style={styles.BackgroundForms}>
             <View style={styles.form}>
               <Text style={styles.textTitle}>Registrar Usuario</Text>
               <Text style={styles.textInput}>Usuario</Text>

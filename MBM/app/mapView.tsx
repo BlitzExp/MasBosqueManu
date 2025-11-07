@@ -48,7 +48,9 @@ const pins = [
 
 export default function MapScreen() {
   const router = useRouter();
-  
+
+  const userType = 'admin'; 
+
   return (
     <View style={styles.container}>
       <MapView
@@ -69,7 +71,7 @@ export default function MapScreen() {
           />
         ))}
       </MapView>
-          <NavigationBar userType='user' currentTab="mapView" />
+          <NavigationBar userType={userType} currentTab="mapView" />
     </View>
   );
 }

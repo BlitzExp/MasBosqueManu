@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React from "react";
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { router } from 'expo-router';
@@ -33,17 +32,31 @@ export default function NavigationBar({ userType, currentTab } : { userType: 'ad
                         <MaterialCommunityIcons name="history" style={[styles.navIcon, history && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, history && styles.activeText]}>Historial</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.navItem} onPress={() => router.replace('/editProfile')}>
+                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/editProfile')}>
                         <MaterialCommunityIcons name="account" style={[styles.navIcon, profile && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, profile && styles.activeText]}>Perfil</Text>
                     </TouchableOpacity>
                 </View>
             )}
             {isMedic && (
-                <TouchableOpacity style={styles.navItem}>
-                    <MaterialCommunityIcons name="stethoscope" style={styles.navIcon} />
-                    <Text>Medic</Text>
-                </TouchableOpacity>
+                <View style={styles.navBar}>
+                    <TouchableOpacity style={[styles.navItem, mapView && styles.activeNavItemMap]} onPress={() => router.replace('/mapView')}>
+                        <MaterialCommunityIcons name="map" style={[styles.navIcon, mapView && styles.activeNavIcon]} />
+                        <Text style={[styles.navtext, mapView && styles.activeText]}>Mapa</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.navItem, alert && styles.activeNavItem]} onPress={() => router.replace('/dailyJournal')}>
+                        <MaterialCommunityIcons name='plus' style={[styles.navIcon, alert && styles.activeNavIcon]} />
+                        <Text style={[styles.navtext, alert && styles.activeText]}>Crear</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItemProfile]} onPress={() => router.replace('/recordsParamedic')}>
+                        <MaterialCommunityIcons name="history" style={[styles.navIcon, history && styles.activeNavIcon]} />
+                        <Text style={[styles.navtext, history && styles.activeText]}>Historial</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/editProfile')}>
+                        <MaterialCommunityIcons name="account" style={[styles.navIcon, profile && styles.activeNavIcon]} />
+                        <Text style={[styles.navtext, profile && styles.activeText]}>Perfil</Text>
+                    </TouchableOpacity>
+                </View>
             )}
             {isUser && (
                 <View style={styles.navBar}>
