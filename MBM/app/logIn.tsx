@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
-import Authenticate from '../Controlador/Authenticate';
+import { useAuthController } from '../Controlador/Authenticate';
 
 import NavigationBar from '../components/ui/NavigationBar';
 
@@ -12,10 +12,10 @@ export default function LogIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const authenticate = new Authenticate();
+  const { handleLogin, goToRegister } = useAuthController();
 
   const handleSubmit = () => {
-    authenticate.handleLogin(username, password);
+    handleLogin(username, password);
   }
 
   return (
@@ -42,7 +42,7 @@ export default function LogIn() {
             <Text style={styles.buttonStartText}>Iniciar Sesión</Text>
           </TouchableOpacity>
 
-          <Text style={styles.URLText} onPress={() => authenticate.goToRegister()}>
+          <Text style={styles.URLText} onPress={goToRegister}>
             Registar Usuario
           </Text>
         </View>

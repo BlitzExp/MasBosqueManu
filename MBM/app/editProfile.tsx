@@ -3,14 +3,17 @@ import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
+import {useStoredDataController} from '../Controlador/storedDataController';
+
 
 import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
 
 export default function EditProfile() {
 
-  const userType = 'medic'; 
   const router = useRouter();
+  const storedDataController = useStoredDataController();
+
   const [name, setName] =  React.useState('');
   const [contraseña, setContraseña] =  React.useState('');
   const [hiddenContraseña, setHiddenContraseña] =  React.useState('');
@@ -19,6 +22,8 @@ export default function EditProfile() {
   const [lastVisit, setLastVisit] =  React.useState('');
   const [rol, setRol] =  React.useState('');
 
+  const [userType, setUserType] = React.useState('user');
+
   const [showPassword, setShowPassword] =  React.useState(false);
 
   const togglePasswordVisibility = () => {
@@ -26,7 +31,7 @@ export default function EditProfile() {
   };
 
   useEffect(() => {
-    // Obtener datos del usuario y asignar
+    //dumy data
     setName('Edgar Osvaldo Navarro');
     setContraseña('Edgar1223');
     setHiddenContraseña('********'); 
@@ -34,11 +39,22 @@ export default function EditProfile() {
     setRegistro('10 / 09 / 2023');
     setLastVisit('03 / 11 / 2025');
     setRol('Médico');
+
+    const fetchData = async () => {
+      const data = await storedDataController.getStoredData('userType');
+      if (data) {
+        setUserType(data);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleSubmit = () => {
+    console.log('Cerrar Sesión');
+
+    storedDataController.removeAllStoredData();
     router.replace('/logIn');
-  }
+  };
 
   return (
     <View style={styles.Background}>

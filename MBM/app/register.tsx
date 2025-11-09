@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
-
 import NavigationBar from '../components/ui/NavigationBar';
 
 import styles from '../Styles/styles';

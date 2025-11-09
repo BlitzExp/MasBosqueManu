@@ -3,6 +3,11 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import NavigationBar from '../components/ui/NavigationBar';
 
+import {useStoredDataController} from '../Controlador/storedDataController';
+
+import { useState } from 'react';
+import { useEffect } from 'react';
+
 const pins = [
   {
     latitude: 20.595209,
@@ -48,8 +53,20 @@ const pins = [
 
 export default function MapScreen() {
   const router = useRouter();
+  const [userType, setUserType] = useState('user');
 
-  const userType = 'admin'; 
+  useEffect(() => {
+    const fetchData = async () => {
+      const storedDataController = useStoredDataController();
+      const data = await storedDataController.getStoredData('userType');
+      if (data) {
+        setUserType(data);
+      }
+    };
+    fetchData();
+  }, []);
+
+
 
   return (
     <View style={styles.container}>

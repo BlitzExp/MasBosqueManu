@@ -132,7 +132,7 @@ export default function DailyJournal() {
           </View>
         </TouchableOpacity>
       </View>
-      <NavigationBar userType={userType} currentTab='alert'/>
+      <NavigationBar userType={userType} currentTab='create' />
     </View>
   );
 }
