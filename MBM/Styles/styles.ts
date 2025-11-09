@@ -307,4 +307,11 @@ export default StyleSheet.create({
       paddingLeft: 10,
     },
 
+    dropDownSimbolJournal: {
+      alignContent: 'flex-end',
+      alignSelf: 'flex-start',
+      marginRight: '10%',
+      color: colors.white,
+    },
+
 });

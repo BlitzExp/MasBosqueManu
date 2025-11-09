@@ -29,6 +29,7 @@ export default function RootLayout() {
           <Stack.Screen name="adminNotifications" options={{ headerShown: false }} />
           <Stack.Screen name="recordsAdmin" options={{ headerShown: false }} />
           <Stack.Screen name="editProfile" options={{ headerShown: false }} />
+          <Stack.Screen name="dailyJournal" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
         <StatusBar style="dark" />  
