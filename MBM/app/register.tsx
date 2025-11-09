@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
 import NavigationBar from '../components/ui/NavigationBar';
@@ -11,10 +12,9 @@ export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
-  const [userType, setUserType] = useState('');
+  const [userType, setUserType] = useState('medico');
   
   const handleSubmit = () => {
-    // Llama al Controlador de Registro aquí
     console.log('Username:', username);
     console.log('Password:', password);
   }
@@ -48,12 +48,18 @@ export default function Register() {
                 style={styles.inputField}
               />
               <Text style={styles.textInput}>Tipo de Usuario</Text>
-              <TextInput
-                placeholder="Medico"
-                secureTextEntry
+              <Dropdown
+                data={[
+                  { label: 'Médico', value: 'medico' },
+                  { label: 'Admin', value: 'admin' },
+                ]}
+                labelField="label"
+                valueField="value"
                 value={userType}
-                onChangeText={setUserType}
+                onChange={(item) => setUserType(item.value)}
                 style={styles.inputField}
+                placeholderStyle={{ color: 'rgba(0,0,0,0.6)' }}
+                selectedTextStyle={{ color: '#000' }}
               />
               <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
                 <Text style={styles.buttonStartText}>Registrar</Text>

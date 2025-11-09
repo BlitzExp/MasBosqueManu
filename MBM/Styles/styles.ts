@@ -314,4 +314,30 @@ export default StyleSheet.create({
       color: colors.white,
     },
 
+    // simple dropdown styles used in Register screen
+    dropdownButton: {
+      backgroundColor: colors.white,
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.gray,
+    },
+    dropdownMenu: {
+      backgroundColor: colors.white,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.gray,
+      marginTop: 6,
+      overflow: 'hidden',
+      width: '100%',
+    },
+    dropdownOption: {
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(0,0,0,0.06)'
+    }
+
 });
