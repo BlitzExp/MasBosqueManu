@@ -1,8 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
+const windowHeight = Dimensions.get('window').height;
+const dropdownMaxHeight = Math.round(windowHeight * 0.3);
 
 const colors = {
-  background: 'rgba(255, 249, 239, 1)',
+  background: '#fdf7edff',
   navbackground: 'rgba(231, 222, 210, 1)',
   white: 'rgba(255, 255, 255, 1)',
   buttonBackground: 'rgba(99, 161, 91, 1)',
@@ -76,8 +78,6 @@ export default StyleSheet.create({
   },
   activeNavItem: {
     backgroundColor: colors.buttonBackground,
-    borderTopLeftRadius: 30,
-    borderBottomLeftRadius: 30,
   },
   activeNavItemProfile: {
     backgroundColor: colors.buttonBackground,
@@ -235,7 +235,6 @@ export default StyleSheet.create({
       alignContent: 'flex-end',
     },
 
-    //Red button
     redButton:
     {
       backgroundColor: colors.redButton,
@@ -252,6 +251,60 @@ export default StyleSheet.create({
       color: colors.white,
       letterSpacing: 0.1,
       fontSize: 16,
-    }
+    },
+    dropMenuContainer: {
+      marginTop: 100,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '85%',
+      alignContent: 'center',
+      alignItems: 'center',
+      
+    },
+    dropDownSimbol: {
+      alignContent: 'flex-end',
+      alignSelf: 'center',
+      marginRight: '-10%',
+    },
+
+    alertItem: {
+      flexDirection: 'row',
+      borderRadius: 30,
+      backgroundColor: '#ffffffff',
+      width : '90%',
+      alignSelf: 'center',
+      padding: 15,
+      marginTop: 10,
+      borderColor: colors.gray,
+      borderWidth: 1,
+    },
+    alertText: {
+      fontSize: 16,
+      marginTop: 0,
+    },
+    alertTextSecondary: {
+      paddingLeft: '5%',
+      fontSize: 14,
+      marginTop: 0,
+    },
+     redButtonAlert:
+    {
+      backgroundColor: colors.redButton,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+      paddingHorizontal: 12,
+      height: 40,
+      marginLeft: 'auto',
+    },
+    scrollViewStyle: {
+      maxHeight: dropdownMaxHeight,
+      paddingBottom: 10,
+    },
+    alertTextContainer: {
+      flex: 1,
+      paddingLeft: 10,
+    },
 
 });

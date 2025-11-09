@@ -33,7 +33,7 @@ export default function EditProfile() {
     setNVisitas('15');
     setRegistro('10 / 09 / 2023');
     setLastVisit('03 / 11 / 2025');
-    setRol('Admin');
+    setRol('Médico');
   }, []);
 
   const handleSubmit = () => {
