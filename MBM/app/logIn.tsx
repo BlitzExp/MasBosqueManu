@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import { supabase } from '../services/supabase';
 
 import NavigationBar from '@/components/ui/NavigationBar';
 
@@ -13,11 +14,28 @@ export default function logIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = () => {
-    // Llama al Controlador de Autenticación aquí
-    console.log('Username:', username);
-    console.log('Password:', password);
+  const handleSubmit = async () => {
+  if (!username || !password) {
+    alert('Por favor llena todos los campos');
+    return;
   }
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: username,
+      password: password,
+    });
+
+    if (error) throw error;
+
+    alert('Inicio de sesión exitoso');
+    console.log('User:', data.user);
+    router.replace('/mapView'); // adjust your route here
+  } catch (err: any) {
+    alert(err.message);
+  }
+};
+
 
 
   const router = useRouter();
@@ -35,7 +53,7 @@ export default function logIn() {
           />
           <Text style={styles.textInput}>Contraseña</Text>
           <TextInput
-            placeholder="Constraseña"
+            placeholder="Contraseña"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
