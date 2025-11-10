@@ -31,6 +31,7 @@ export default function RootLayout() {
           <Stack.Screen name="editProfile" options={{ headerShown: false }} />
           <Stack.Screen name="dailyJournal" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen name="recordsParamedic" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="dark" />  
       </NotificationsProvider>

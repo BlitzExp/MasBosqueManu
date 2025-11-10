@@ -2,6 +2,7 @@ import { Dimensions, StyleSheet } from 'react-native';
 
 const windowHeight = Dimensions.get('window').height;
 const dropdownMaxHeight = Math.round(windowHeight * 0.3);
+const dropdownMaxHeightRegisters = Math.round(windowHeight * 0.8);
 
 const colors = {
   background: '#fdf7edff',
@@ -302,6 +303,10 @@ export default StyleSheet.create({
       maxHeight: dropdownMaxHeight,
       paddingBottom: 10,
     },
+    scrollViewStyleRegisters: {
+      maxHeight: dropdownMaxHeightRegisters,
+      paddingBottom: 10,
+    },
     alertTextContainer: {
       flex: 1,
       paddingLeft: 10,
@@ -338,6 +343,25 @@ export default StyleSheet.create({
       paddingHorizontal: 12,
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(0,0,0,0.06)'
-    }
+    },
+    imageContainer: {
+      alignItems: 'center',
+      height: 150,
+      width: 150,
+      borderRadius: 75,
+      overflow: 'hidden',
+      marginBottom: 20,
+    },
+    registerTitle:{
+      fontSize: 30,
+      marginBottom: 20,
+      fontFamily: fonts.JuraBold,
+    },
+    registerText:{
+      fontSize: 16,
+      marginBottom: 10,
+      fontFamily: fonts.Jura,
+      marginRight: '45%',
+    },
 
 });

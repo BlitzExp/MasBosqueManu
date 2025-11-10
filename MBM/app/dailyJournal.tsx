@@ -44,7 +44,6 @@ export default function DailyJournal() {
   }
 
   const handleSubmit = () => {
-    // Implementar Envio de formulario
     console.log('Bitacora Enviada');
   }
 
@@ -100,7 +99,7 @@ export default function DailyJournal() {
                   />
                 </View>
                 <View>
-                  <Text style={styles.textInput}>Upload File</Text> {/* Falta implementacion */}
+                  <Text style={styles.textInput}>Upload File  {/* Falta implementacion */}</Text>
                 </View>
                  <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
                     <Text style={styles.buttonStartText}>Enviar</Text>

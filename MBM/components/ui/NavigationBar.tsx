@@ -28,7 +28,7 @@ export default function NavigationBar({ userType, currentTab } : { userType: str
                         <MaterialCommunityIcons name="alert" style={[styles.navIcon, alert && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, alert && styles.activeText]}>Alertas</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItemProfile]} onPress={() => router.replace('/recordsAdmin')}>
+                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItem]} onPress={() => router.replace('/recordsParamedic')}>
                         <MaterialCommunityIcons name="history" style={[styles.navIcon, history && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, history && styles.activeText]}>Historial</Text>
                     </TouchableOpacity>
@@ -48,7 +48,7 @@ export default function NavigationBar({ userType, currentTab } : { userType: str
                         <MaterialCommunityIcons name='plus' style={[styles.navIcon, create && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, create && styles.activeText]}>Crear</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItemProfile]} onPress={() => router.replace('/recordsParamedic')}>
+                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItem]} onPress={() => router.replace('/recordsParamedic')}>
                         <MaterialCommunityIcons name="history" style={[styles.navIcon, history && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, history && styles.activeText]}>Historial</Text>
                     </TouchableOpacity>
