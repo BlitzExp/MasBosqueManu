@@ -1,7 +1,7 @@
 import { Button, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function recordsParamedic() {
+export default function RecordsParamedic() {
   const router = useRouter();
   return (
     <View>

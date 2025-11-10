@@ -1,16 +1,17 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Button, Text, View, TouchableOpacity  } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { supabase } from '../services/supabase';
-
+import NavigationBar from '../components/ui/NavigationBar';
 
 import styles from '../Styles/styles';
 
-export default function register() {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('');
+  const [userType, setUserType] = useState('medico');
   
   const handleSubmit = async () => {
   if (!username || !password) {
@@ -42,7 +43,7 @@ export default function register() {
   const router = useRouter();
   return (
     <GestureHandlerRootView>
-          <View style={styles.Background}>
+          <View style={styles.BackgroundForms}>
             <View style={styles.form}>
               <Text style={styles.textTitle}>Registrar Usuario</Text>
               <Text style={styles.textInput}>Usuario</Text>
@@ -61,12 +62,18 @@ export default function register() {
                 style={styles.inputField}
               />
               <Text style={styles.textInput}>Tipo de Usuario</Text>
-              <TextInput
-                placeholder="Medico"
-                secureTextEntry
+              <Dropdown
+                data={[
+                  { label: 'Médico', value: 'medico' },
+                  { label: 'Admin', value: 'admin' },
+                ]}
+                labelField="label"
+                valueField="value"
                 value={userType}
-                onChangeText={setUserType}
+                onChange={(item) => setUserType(item.value)}
                 style={styles.inputField}
+                placeholderStyle={{ color: 'rgba(0,0,0,0.6)' }}
+                selectedTextStyle={{ color: '#000' }}
               />
               <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
                 <Text style={styles.buttonStartText}>Registrar</Text>
@@ -77,7 +84,7 @@ export default function register() {
               </Text>
             </View>
           </View>
-          
+          <NavigationBar userType='user' currentTab="profile" />
         </GestureHandlerRootView>
   );
 }

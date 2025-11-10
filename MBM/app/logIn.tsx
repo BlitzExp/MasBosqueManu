@@ -1,16 +1,14 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { supabase } from '../services/supabase';
+import { useAuthController } from '../Controlador/Authenticate';
 
-import NavigationBar from '@/components/ui/NavigationBar';
-
-
+import NavigationBar from '../components/ui/NavigationBar';
 
 import styles from '../Styles/styles';
 
-export default function logIn() {
+export default function LogIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -37,11 +35,17 @@ export default function logIn() {
 };
 
 
-
+/* METER EL MIO A CONTROLADOR
   const router = useRouter();
+  const { handleLogin, goToRegister } = useAuthController();
+
+  const handleSubmit = () => {
+    handleLogin(username, password);
+  }
+*/
   return (
     <GestureHandlerRootView>
-      <View style={styles.Background}>
+      <View style={styles.BackgroundForms}>
         <View style={styles.form}>
           <Text style={styles.textTitle}>Iniciar Sesión</Text>
           <Text style={styles.textInput}>Usuario</Text>
@@ -63,14 +67,12 @@ export default function logIn() {
             <Text style={styles.buttonStartText}>Iniciar Sesión</Text>
           </TouchableOpacity>
 
-          <Text style={styles.URLText} onPress={() => router.replace('/register') }>
+          <Text style={styles.URLText} onPress={goToRegister}>
             Registar Usuario
           </Text>
         </View>
-
-        <NavigationBar userType='user' currentTab="profile"/>
+        <NavigationBar userType='user' currentTab="profile" />
       </View>
-      
     </GestureHandlerRootView>
   );
 }

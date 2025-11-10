@@ -1,18 +1,111 @@
 import { useRouter } from 'expo-router';
-import { Button, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import NavigationBar from '../components/ui/NavigationBar';
 
-export default function mapView() {
-  const router = useRouter();
-  return (
-    <View>
-      <Button title="Ir a logIn" onPress={() => router.replace('/logIn')} />
-        <Button title="Ir a logIn" onPress={() => router.replace('/logIn')} />
-        <Button title="Crear una entrada en bitácora" onPress={() => router.replace('/dailyJournal')} />
-        <Button title="Ver entradas de bitácora" onPress={() => router.replace('/recordsParamedic')} />
-        <Button title="EditarPerfil" onPress={() => router.replace('/editProfile')} />
+import {useStoredDataController} from '../Controlador/storedDataController';
 
-        <NavigationBar userType='admin' currentTab="mapView" />
+import { useState } from 'react';
+import { useEffect } from 'react';
+
+const pins = [
+  {
+    latitude: 20.595209,
+    longitude: -103.547140,
+    title: 'Torre 1'
+  },
+  {
+    latitude: 20.604368,
+    longitude: -103.603445,
+    title: 'Torre 3'
+  },
+  {
+    latitude: 20.623970,
+    longitude: -103.562075,
+    title: 'Arbol Manu / Fin de Toboganes'
+  },
+  {
+    latitude: 20.615114,
+    longitude: -103.534941,
+    title: 'Check Point'
+  },
+  {
+    latitude: 20.622600,
+    longitude:  -103.535956,
+    title: 'El Arbol / Final Garrison'
+  },
+  {
+    latitude: 20.614480,
+    longitude: -103.519726,
+    title: 'El Tecuan'
+  },
+  {
+    latitude: 20.617585,
+    longitude: -103.509111,
+    title: 'El Ocho y Medio'
+  },
+  {
+    latitude: 20.674321,
+    longitude: -103.514444,
+    title: 'Torre 2'
+  }
+];
+
+export default function MapScreen() {
+  const router = useRouter();
+  const [userType, setUserType] = useState('user');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const storedDataController = useStoredDataController();
+      const data = await storedDataController.getStoredData('userType');
+      if (data) {
+        setUserType(data);
+      }
+    };
+    fetchData();
+  }, []);
+
+
+
+  return (
+    <View style={styles.container}>
+      <MapView
+        provider={PROVIDER_GOOGLE}
+        style={StyleSheet.absoluteFillObject}
+        initialRegion={{
+          latitude: 20.630117,
+          longitude: -103.555317,
+          latitudeDelta: 0.11,
+          longitudeDelta: 0.11,
+        }}
+      >
+        {pins.map((pin, index) => (
+          <Marker
+            key={index}
+            coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
+            title={pin.title}
+          />
+        ))}
+      </MapView>
+          <NavigationBar userType={userType} currentTab="mapView" />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  overlayContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    pointerEvents: 'box-none',
+  },
+  buttonContainer: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    gap: 10,
+    pointerEvents: 'auto',
+  },
+});

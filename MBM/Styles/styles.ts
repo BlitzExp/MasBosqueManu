@@ -1,13 +1,19 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
+
+const windowHeight = Dimensions.get('window').height;
+const dropdownMaxHeight = Math.round(windowHeight * 0.3);
 
 const colors = {
-  background: 'rgba(255, 249, 239, 1)',
+  background: '#fdf7edff',
   navbackground: 'rgba(231, 222, 210, 1)',
   white: 'rgba(255, 255, 255, 1)',
   buttonBackground: 'rgba(99, 161, 91, 1)',
   buttonBackgroundPress: 'rgba(79, 130, 72, 1)',
   gray: 'rgba(54, 54, 54, 1)',
+  black: 'rgba(0, 0, 0, 1)',
   greenletters: '#497841',
+  inputBackground: '#E6E0E9',
+  redButton: '#EC6200',
 };
 
 
@@ -37,9 +43,17 @@ export default StyleSheet.create({
   },
 
   // Navigation Bar Styles
-  navBar: {
+  navBarWrapper: {
     position: 'absolute',
-    top: 20,
+    left: 0,
+    right: 0,
+    bottom: 30,
+    alignItems: 'center',
+    zIndex: 1000,
+    elevation: 10,
+  },
+
+  navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -64,8 +78,6 @@ export default StyleSheet.create({
   },
   activeNavItem: {
     backgroundColor: colors.buttonBackground,
-    borderTopLeftRadius: 30,
-    borderBottomLeftRadius: 30,
   },
   activeNavItemProfile: {
     backgroundColor: colors.buttonBackground,
@@ -89,6 +101,10 @@ export default StyleSheet.create({
 
   // General Styles 
   Background: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  BackgroundForms: {
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
@@ -156,6 +172,9 @@ export default StyleSheet.create({
     letterSpacing: 3,
     fontSize: 24,
   },
+
+
+  //estilos para editar perfil
   inputField: {
     height: 40,
     borderColor: colors.gray,
@@ -164,4 +183,161 @@ export default StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 8,
     },
+    userInputContainer: {
+      width: '85%',
+      alignSelf: 'center',
+      borderRadius: 20,
+      marginTop: 20,
+      backgroundColor: colors.inputBackground,
+    },
+    HeaderText:
+    {
+      marginTop: 100,
+      fontFamily: fonts.BebasNeue,
+      fontSize: 36,
+      lineHeight: 38,
+      letterSpacing: 2,
+      paddingLeft: '10%',
+      textAlign: 'left',
+    },
+    Separator: 
+    {
+      borderWidth: 2,
+      borderColor: colors.gray,
+      marginHorizontal: '5%',
+    },
+    fieldName:
+    {
+      paddingLeft: '5%',
+      color : colors.gray,
+      fontSize: 12,
+      letterSpacing: 0.4,
+      lineHeight: 16,
+      marginTop: 10,
+    },
+    fieldInput: 
+    {
+      color: colors.black,
+      fontSize: 16,
+      paddingTop: 5,
+      letterSpacing: 0.5,
+      paddingLeft: '7%',
+      marginBottom: 10,
+    },
+    passwordContainer:
+    {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingRight: '10%',
+    },
+    Icons:
+    {
+      alignContent: 'flex-end',
+    },
+
+    redButton:
+    {
+      backgroundColor: colors.redButton,
+      borderRadius: 20,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      justifyContent: 'center',
+      width : '70%',
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginTop: 30,
+    },
+    redButtonText: {
+      color: colors.white,
+      letterSpacing: 0.1,
+      fontSize: 16,
+    },
+    dropMenuContainer: {
+      marginTop: 100,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '85%',
+      alignContent: 'center',
+      alignItems: 'center',
+      
+    },
+    dropDownSimbol: {
+      alignContent: 'flex-end',
+      alignSelf: 'center',
+      marginRight: '-10%',
+    },
+
+    alertItem: {
+      flexDirection: 'row',
+      borderRadius: 30,
+      backgroundColor: '#ffffffff',
+      width : '90%',
+      alignSelf: 'center',
+      padding: 15,
+      marginTop: 10,
+      borderColor: colors.gray,
+      borderWidth: 1,
+    },
+    alertText: {
+      fontSize: 16,
+      marginTop: 0,
+    },
+    alertTextSecondary: {
+      paddingLeft: '5%',
+      fontSize: 14,
+      marginTop: 0,
+    },
+     redButtonAlert:
+    {
+      backgroundColor: colors.redButton,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+      paddingHorizontal: 12,
+      height: 40,
+      marginLeft: 'auto',
+    },
+    scrollViewStyle: {
+      maxHeight: dropdownMaxHeight,
+      paddingBottom: 10,
+    },
+    alertTextContainer: {
+      flex: 1,
+      paddingLeft: 10,
+    },
+
+    dropDownSimbolJournal: {
+      alignContent: 'flex-end',
+      alignSelf: 'flex-start',
+      marginRight: '10%',
+      color: colors.white,
+    },
+
+    // simple dropdown styles used in Register screen
+    dropdownButton: {
+      backgroundColor: colors.white,
+      borderRadius: 8,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.gray,
+    },
+    dropdownMenu: {
+      backgroundColor: colors.white,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.gray,
+      marginTop: 6,
+      overflow: 'hidden',
+      width: '100%',
+    },
+    dropdownOption: {
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: 'rgba(0,0,0,0.06)'
+    }
+
 });

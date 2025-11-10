@@ -1,23 +1,42 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { supabase } from '../services/supabase';
-
+import {useStoredDataController} from '../Controlador/storedDataController';
 import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
+import { supabase } from '../services/supabase';
 
 export default function EditProfile() {
+
   const router = useRouter();
+  const storedDataController = useStoredDataController();
 
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [nVisitas, setNVisitas] = useState('');
-  const [registro, setRegistro] = useState('');
-  const [lastVisit, setLastVisit] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] =  React.useState('');
+  const [contraseña, setContraseña] =  React.useState('');
+  const [hiddenContraseña, setHiddenContraseña] =  React.useState('');
+  const [nVisitas, setNVisitas] =  React.useState('');
+  const [registro, setRegistro] =  React.useState('');
+  const [lastVisit, setLastVisit] =  React.useState('');
+  const [rol, setRol] =  React.useState('');
 
-  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const [userType, setUserType] = React.useState('user');
+
+  const [showPassword, setShowPassword] =  React.useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await storedDataController.getStoredData('userType');
+      if (data) {
+        setUserType(data);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -28,7 +47,6 @@ export default function EditProfile() {
         return;
       }
 
-      // Fetch profile
       const { data: profile, error } = await supabase
         .from('Profiles')
         .select('*')
@@ -40,18 +58,17 @@ export default function EditProfile() {
         return;
       }
 
-      // Update UI
       setName(profile.name || '');
-      setRole(profile.role === 1 ? 'Médico' : 'Usuario');
+      setRol(profile.role === 1 ? 'Médico' : 'Usuario');
       setNVisitas(profile.nvisits?.toString() ?? '0');
       setRegistro(profile.dateRegistered ?? '');
       setLastVisit(profile.lastVisit ?? '');
     };
-
     loadProfile();
   }, []);
 
   const handleLogout = async () => {
+    storedDataController.removeAllStoredData();W
     await supabase.auth.signOut();
     router.replace('/logIn');
   };
@@ -59,19 +76,18 @@ export default function EditProfile() {
   return (
     <View style={styles.Background}>
       <Text style={styles.HeaderText}>Perfil</Text>
-      <View style={styles.Separator}></View>
-
+      <View style= {styles.Separator}></View>
       <View style={styles.userInputContainer}>
         <Text style={styles.fieldName}>Nombre</Text>
-        <Text style={styles.fieldInput}>{name}</Text>
+        <Text style={styles.fieldInput}> {name}</Text>
       </View>
-
       <View style={styles.userInputContainer}>
         <Text style={styles.fieldName}>Contraseña</Text>
         <View style={styles.passwordContainer}>
-          <Text style={styles.fieldInput}>
-            {showPassword ? '********' : '********'}
-          </Text>
+          { showPassword ? 
+            <Text style={styles.fieldInput}> {contraseña} </Text> : 
+            <Text style={styles.fieldInput}> {hiddenContraseña} </Text>
+          }
           <TouchableOpacity onPress={togglePasswordVisibility}>
             <MaterialCommunityIcons
               name={showPassword ? 'eye' : 'eye-off'}
@@ -80,35 +96,52 @@ export default function EditProfile() {
               style={styles.Icons}
             />
           </TouchableOpacity>
-        </View>
+        </View>        
       </View>
-
-      <View style={styles.userInputContainer}>
-        <Text style={styles.fieldName}>N. Visitas</Text>
-        <Text style={styles.fieldInput}>{nVisitas}</Text>
-      </View>
-
-      <View style={styles.userInputContainer}>
-        <Text style={styles.fieldName}>Última Visita</Text>
-        <Text style={styles.fieldInput}>{lastVisit}</Text>
-      </View>
-
+      {
+        rol === 'Médico' && (
+          <View style={styles.userInputContainer}>
+            <Text style={styles.fieldName}>N. Visitas</Text>
+            <Text style={styles.fieldInput}> {nVisitas}</Text>
+          </View>
+        )
+      }
+      
       <View style={styles.userInputContainer}>
         <Text style={styles.fieldName}>Fecha de Registro</Text>
-        <Text style={styles.fieldInput}>{registro}</Text>
+        <Text style={styles.fieldInput}> {registro}</Text>
       </View>
-
+      {
+        rol === 'Médico' && (
+          <View style={styles.userInputContainer}>
+            <Text style={styles.fieldName}>Última Visita</Text>
+            <Text style={styles.fieldInput}> {lastVisit}</Text>
+          </View>
+        )
+      }
+      
       <View style={styles.userInputContainer}>
         <Text style={styles.fieldName}>Rol</Text>
-        <Text style={styles.fieldInput}>{role}</Text>
+        <Text style={styles.fieldInput}> {rol}</Text>
       </View>
-
       <TouchableOpacity onPress={handleLogout} style={styles.redButton}>
         <Text style={styles.redButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
 
-      {/* ✅ You can leave it always as "profile" for demo purposes */}
-      <NavigationBar userType="user" currentTab="profile" />
+      <NavigationBar userType={userType} currentTab="profile" />
     </View>
   );
 }
+
+
+/** Version para elementos editables
+<View style={styles.userInputContainer}> 
+        <Text style={styles.fieldName}>Nombre</Text>
+        <TextInput
+          placeholder="Nombre"
+          value={name}
+          onChangeText={setName}
+          style={styles.fieldInput}
+        />
+</View>
+ */
