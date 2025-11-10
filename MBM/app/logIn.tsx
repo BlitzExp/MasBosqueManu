@@ -3,14 +3,19 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import { supabase } from '../services/supabase';
 import { useAuthController } from '../Controlador/Authenticate';
+import { useRouter } from 'expo-router'; // METER EL MIO A CONTROLADOR
 
 import NavigationBar from '../components/ui/NavigationBar';
 
 import styles from '../Styles/styles';
-
+/*
 export default function LogIn() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const { handleLogin, goToRegister } = useAuthController();
+
+  const router = useRouter(); // METER EL MIO A CONTROLADOR
 
   const handleSubmit = async () => {
   if (!username || !password) {
@@ -28,21 +33,21 @@ export default function LogIn() {
 
     alert('Inicio de sesión exitoso');
     console.log('User:', data.user);
-    router.replace('/mapView'); // adjust your route here
+    router.replace('/mapView'); 
   } catch (err: any) {
     alert(err.message);
   }
 };
-
-
-/* METER EL MIO A CONTROLADOR
+*/
+export default function handleLogin() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
   const { handleLogin, goToRegister } = useAuthController();
 
   const handleSubmit = () => {
     handleLogin(username, password);
   }
-*/
   return (
     <GestureHandlerRootView>
       <View style={styles.BackgroundForms}>
