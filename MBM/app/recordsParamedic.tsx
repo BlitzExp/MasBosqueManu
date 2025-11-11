@@ -21,7 +21,7 @@ export default function RecordsParamedic() {
   ];
 
   const [userType, setUserType] = useState('user');
-  // call controller at top level (not inside inner function)
+
   const storedDataController = useStoredDataController();
 
   useEffect(() => {

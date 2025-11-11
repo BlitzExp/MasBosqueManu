@@ -6,6 +6,8 @@ export function useAuthController() {
     const router = useRouter();
 
     const handleLogin = (user: string, password: string) => {
+
+        
         if (user === 'admin' && password === '1234') {
             const storedDataController = useStoredDataController();
             storedDataController.setStoredData('userType', 'admin');
