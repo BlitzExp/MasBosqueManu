@@ -64,12 +64,12 @@ export default function NavigationBar({ userType, currentTab } : { userType: str
                         <MaterialCommunityIcons name="map" style={[styles.navIcon, mapView && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, mapView && styles.activeText]}>Mapa</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/logIn')}>
+                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/editProfile')}>
                         <MaterialCommunityIcons name="account" style={[styles.navIcon, profile && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, profile && styles.activeText]}>Perfil</Text>
                     </TouchableOpacity>
                 </View>
-            )}
+            )} 
         </View>
     );
 }

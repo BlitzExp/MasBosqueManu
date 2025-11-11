@@ -2,12 +2,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-
-import {useStoredDataController} from '../Controlador/storedDataController';
-
-
 import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
+import { supabase } from '../services/supabase';
+import { Alert } from 'react-native';
+import { useStoredDataController } from '../Controlador/storedDataController';
 
 export default function EditProfile() {
 
@@ -15,8 +14,6 @@ export default function EditProfile() {
   const storedDataController = useStoredDataController();
 
   const [name, setName] =  React.useState('');
-  const [contraseña, setContraseña] =  React.useState('');
-  const [hiddenContraseña, setHiddenContraseña] =  React.useState('');
   const [nVisitas, setNVisitas] =  React.useState('');
   const [registro, setRegistro] =  React.useState('');
   const [lastVisit, setLastVisit] =  React.useState('');
@@ -24,37 +21,49 @@ export default function EditProfile() {
 
   const [userType, setUserType] = React.useState('user');
 
-  const [showPassword, setShowPassword] =  React.useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const handleLogout = async () => {
+    try {
+    await supabase.auth.signOut();
+    router.replace("/logIn");
+    } catch (err: any) {
+    Alert.alert("Error", "No se pudo cerrar sesión.");
+    }
   };
 
   useEffect(() => {
-    //dumy data
-    setName('Edgar Osvaldo Navarro');
-    setContraseña('Edgar1223');
-    setHiddenContraseña('********'); 
-    setNVisitas('15');
-    setRegistro('10 / 09 / 2023');
-    setLastVisit('03 / 11 / 2025');
-    setRol('Médico');
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
 
-    const fetchData = async () => {
+      if (!user) {
+        router.replace('/logIn');
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from('Profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.log("Error fetching profile:", error);
+        return;
+      }
+
+      setName(profile.name || '');
+      setRol(profile.role || '');
+      setUserType(profile.role || 'user');
+      setNVisitas(profile.nvisits?.toString() ?? '0');
+      setRegistro(profile.dateRegistered ?? '');
+      setLastVisit(profile.lastVisit ?? '');
+
       const data = await storedDataController.getStoredData('userType');
       if (data) {
         setUserType(data);
       }
     };
-    fetchData();
+    loadProfile();
   }, []);
-
-  const handleSubmit = () => {
-    console.log('Cerrar Sesión');
-
-    storedDataController.removeAllStoredData();
-    router.replace('/logIn');
-  };
 
   return (
     <View style={styles.Background}>
@@ -64,25 +73,8 @@ export default function EditProfile() {
         <Text style={styles.fieldName}>Nombre</Text>
         <Text style={styles.fieldInput}> {name}</Text>
       </View>
-      <View style={styles.userInputContainer}>
-        <Text style={styles.fieldName}>Contraseña</Text>
-        <View style={styles.passwordContainer}>
-          { showPassword ? 
-            <Text style={styles.fieldInput}> {contraseña} </Text> : 
-            <Text style={styles.fieldInput}> {hiddenContraseña} </Text>
-          }
-          <TouchableOpacity onPress={togglePasswordVisibility}>
-            <MaterialCommunityIcons
-              name={showPassword ? 'eye' : 'eye-off'}
-              size={24}
-              color="black"
-              style={styles.Icons}
-            />
-          </TouchableOpacity>
-        </View>        
-      </View>
       {
-        rol === 'Médico' && (
+        rol === 'medico' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>N. Visitas</Text>
             <Text style={styles.fieldInput}> {nVisitas}</Text>
@@ -95,7 +87,7 @@ export default function EditProfile() {
         <Text style={styles.fieldInput}> {registro}</Text>
       </View>
       {
-        rol === 'Médico' && (
+        rol === 'medico' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>Última Visita</Text>
             <Text style={styles.fieldInput}> {lastVisit}</Text>
@@ -107,7 +99,7 @@ export default function EditProfile() {
         <Text style={styles.fieldName}>Rol</Text>
         <Text style={styles.fieldInput}> {rol}</Text>
       </View>
-      <TouchableOpacity onPress={handleSubmit} style={styles.redButton}>
+      <TouchableOpacity onPress={handleLogout} style={styles.redButton}>
         <Text style={styles.redButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
 
