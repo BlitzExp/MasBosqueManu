@@ -56,13 +56,19 @@ export default function EditProfile() {
       setNVisitas(profile.nvisits?.toString() ?? '0');
       setRegistro(profile.dateRegistered ?? '');
       setLastVisit(profile.lastVisit ?? '');
-
-      const data = await storedDataController.getStoredData('userType');
-      if (data) {
-        setUserType(data);
+    };
+    const fetchUserType = async () => {
+      try {
+        const data = await storedDataController.getStoredData('userType');
+        if (data) {
+          setUserType(data);
+        }
+      } catch (err) {
+        console.error('Error reading stored userType', err);
       }
     };
     loadProfile();
+    fetchUserType();
   }, []);
 
   return (
