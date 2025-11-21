@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { userType as fetchUserType } from '../../Controlador/navBar';
 
@@ -81,7 +81,7 @@ export default function NavigationBar({ currentTab } : { currentTab: string }) {
                         <MaterialCommunityIcons name="map" style={[styles.navIcon, mapView && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, mapView && styles.activeText]}>Mapa</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/editProfile')}>
+                    <TouchableOpacity style={[styles.navItem, profile && styles.activeNavItemProfile]} onPress={() => router.replace('/logIn')}>
                         <MaterialCommunityIcons name="account" style={[styles.navIcon, profile && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, profile && styles.activeText]}>Perfil</Text>
                     </TouchableOpacity>

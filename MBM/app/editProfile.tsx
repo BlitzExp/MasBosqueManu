@@ -80,7 +80,7 @@ export default function EditProfile() {
         <Text style={styles.fieldInput}> {name}</Text>
       </View>
       {
-        rol === 'medic' && (
+        rol === 'medico' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>N. Visitas</Text>
             <Text style={styles.fieldInput}> {nVisitas}</Text>
@@ -93,7 +93,7 @@ export default function EditProfile() {
         <Text style={styles.fieldInput}> {registro}</Text>
       </View>
       {
-        rol === 'medic' && (
+        rol === 'medico' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>Última Visita</Text>
             <Text style={styles.fieldInput}> {lastVisit}</Text>
