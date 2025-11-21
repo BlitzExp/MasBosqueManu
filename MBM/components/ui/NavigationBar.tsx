@@ -7,6 +7,9 @@ import styles from '../../Styles/styles';
 export default function NavigationBar({ userType, currentTab } : { userType: string; currentTab: string }) {
     const isAdmin = userType === 'admin';
     const isMedic = userType === 'medic';
+
+
+    
     const isUser = userType === 'user';
 
     const mapView = currentTab === 'mapView';

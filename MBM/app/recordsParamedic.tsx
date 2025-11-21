@@ -1,76 +1,77 @@
 import { useRouter } from 'expo-router';
 import { Image, ScrollView, Text, View } from 'react-native';
-
 import { useEffect, useState } from 'react';
+import { getUserLogs } from "@/services/logService";
+import { supabase } from "@/services/supabase";
 
 import NavigationBar from '@/components/ui/NavigationBar';
 import { useStoredDataController } from '@/Controlador/storedDataController';
 import styles from '@/Styles/styles';
 
-
-
-
 export default function RecordsParamedic() {
   const router = useRouter();
-
-  const testRecords = [
-    { id: 1, name: 'Juan Perez', date: '12 Octubre', summary: 'Atencion por fractura de brazo. Awdwadawdawfawfwfawfawfawf' },
-    { id: 2, name: 'Maria Lopez', date: '10 Octubre', summary: 'Atencion por quemadura leve. Awadawdawdawdawdawdawdawdawd' },
-    { id: 3, name: 'Carlos Sanchez', date: '08 Octubre', summary: 'Atencion por deshidratacion. Awadawdawdawdawdawdawdawdawd' },
-    { id: 4, name: 'Ana Gomez', date: '05 Octubre', summary: 'Atencion por picadura de insecto. Awadawdawdawdawdawdawdawdawd' },
-  ];
-
+  const storedDataController = useStoredDataController();
+  const [logs, setLogs] = useState([]);
   const [userType, setUserType] = useState('user');
 
-  const storedDataController = useStoredDataController();
-
   useEffect(() => {
-    const fetchData = async () => {
+    const loadLogs = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.replace("/logIn");
+        return;
+      }
+
       try {
-        const data = await storedDataController.getStoredData('userType');
-        if (data) {
-          setUserType(data);
-        }
+        const userLogs = await getUserLogs(user.id);
+        setLogs(userLogs);
       } catch (err) {
-        console.error('Error reading stored userType', err);
+        console.log("Error loading logs:", err);
       }
     };
-    fetchData();
+
+    loadLogs();
   }, []);
 
   return (
     <View style={styles.Background}>
-        <View>
-          <Text style={[styles.HeaderText, { marginTop: 100 }]}>Registros</Text>
-        </View>
-        <View style= {[styles.Separator]}></View>
-        {userType === 'medic' ? (
-          <ScrollView style={styles.scrollViewStyleRegisters} contentContainerStyle={{ paddingBottom: 10 }}>
-            <View style={{ alignItems: 'center', marginTop: 20 }}>
-              {testRecords.map(record => (
-                <View key={record.id} style={styles.alertItem}>
-                  <View>
-                    <Image
-                      source={require('../assets/images/MissingImage.jpg')}
-                      style={styles.imageContainer}
-                      resizeMode="cover"
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.registerTitle}>{record.date}</Text>
-                    <Text style={styles.registerText}>{record.summary} </Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
-          ) : userType === 'admin' ? (
+      <View>
+        <Text style={[styles.HeaderText, { marginTop: 100 }]}>Registros</Text>
+      </View>
+
+      <View style={[styles.Separator]} />
+
+      {(
+        <ScrollView
+          style={styles.scrollViewStyleRegisters}
+          contentContainerStyle={{ paddingBottom: 10 }}
+        >
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            
+            {logs.map(log => (
+              <View key={log.id} style={styles.alertItem}>
+                <View>
+                  <Image
+                    source={require('../assets/images/MissingImage.jpg')}
+                    style={styles.imageContainer}
+                    resizeMode="cover"
+                  />
+                </View>
+
+                <View>
+                  <Text style={styles.registerTitle}>{log.logDate}</Text>
+                  <Text style={styles.registerText}>{log.description}</Text>
+                  <Text style={styles.registerText}>
+                    {log.ingressTime} - {log.exitTime}
+                  </Text>
+                </View>
+              </View>
+            ))}
           </View>
-          ) : null
-        }
-        <NavigationBar userType={userType} currentTab='history'/>
+        </ScrollView>
+      )}
+
+      <NavigationBar userType={userType} currentTab='history' />
     </View>
   );
 }
