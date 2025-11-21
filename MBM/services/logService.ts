@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 export const createUserLog = async (log) => {
   const {
     userID,
+    name,
     logDate,
     ingressTime,
     exitTime,
@@ -14,6 +15,7 @@ export const createUserLog = async (log) => {
     .from('UserLogs')
     .insert({
       userID,
+      name,           
       logDate,
       ingressTime,
       exitTime,

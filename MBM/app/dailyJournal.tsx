@@ -1,6 +1,9 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { supabase } from "@/services/supabase";
+import { Alert } from "react-native";
+import { createUserLog } from "@/services/logService";
 
 import React from 'react';
 
@@ -15,7 +18,7 @@ export default function DailyJournal() {
   const [arrivalHour, setArrivalHour] =  React.useState('');
   const [departureHour, setDepartureHour] =  React.useState('');
   const [description, setDescription] =  React.useState('');
-  
+  const [name, setName] = React.useState('');
 
   const handleArrivalHourChange = (text: string) => {
     setArrivalHour(text);
@@ -43,9 +46,44 @@ export default function DailyJournal() {
     setDepartureHour(formattedTime);
   }
 
-  const handleSubmit = () => {
-    console.log('Bitacora Enviada');
+  const handleSubmit = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      Alert.alert("Error", "Debes iniciar sesión.");
+      return;
+    }
+
+    if (!name.trim()) {
+    Alert.alert("Error", "Debes ingresar tu nombre.");
+    return;
+    }
+
+    const log = {
+      userID: user.id,
+      name: name,           
+      logDate: new Date().toISOString().split("T")[0],
+      ingressTime: arrivalHour,
+      exitTime: departureHour,
+      description,
+      image: null,
+    };
+
+    await createUserLog(log);
+
+    Alert.alert("Éxito", "Bitácora enviada.");
+    setArrivalHour("");
+    setDepartureHour("");
+    setDescription("");
+    setCreateLogMenu(false);
+
+  } catch (err: any) {
+    console.log(err);
+    Alert.alert("Error", err.message);
   }
+};
+
 
   const toggleLogMenu = () => {
     setCreateLogMenu(!createLogMenu);
@@ -88,6 +126,16 @@ export default function DailyJournal() {
                     />
                   </View>
                 </View>
+                <View>
+                <Text style={styles.textInput}>Nombre</Text>
+                <TextInput
+                  placeholder="Ingresa tu nombre"
+                  value={name}
+                  onChangeText={setName}
+                  style={[styles.inputField, { width: '100%' }]}
+                />
+                </View>
+
                 <View>
                   <Text style={styles.textInput}>Descripción</Text>
                   <TextInput
