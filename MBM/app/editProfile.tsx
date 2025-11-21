@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import { useStoredDataController } from '../Controlador/storedDataController';
 import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
 import { clearUserData } from '../services/localdatabase';
@@ -10,15 +9,12 @@ import { supabase } from '../services/supabase';
 export default function EditProfile() {
 
   const router = useRouter();
-  const storedDataController = useStoredDataController();
 
   const [name, setName] =  React.useState('');
   const [nVisitas, setNVisitas] =  React.useState('');
   const [registro, setRegistro] =  React.useState('');
   const [lastVisit, setLastVisit] =  React.useState('');
   const [rol, setRol] =  React.useState('');
-
-  const [userType, setUserType] = React.useState('user');
 
   const handleLogout = async () => {
     try {
@@ -52,23 +48,11 @@ export default function EditProfile() {
 
       setName(profile.name || '');
       setRol(profile.role || '');
-      setUserType(profile.role || 'user');
       setNVisitas(profile.nvisits?.toString() ?? '0');
       setRegistro(profile.dateRegistered ?? '');
       setLastVisit(profile.lastVisit ?? '');
     };
-    const fetchUserType = async () => {
-      try {
-        const data = await storedDataController.getStoredData('userType');
-        if (data) {
-          setUserType(data);
-        }
-      } catch (err) {
-        console.error('Error reading stored userType', err);
-      }
-    };
     loadProfile();
-    fetchUserType();
   }, []);
 
   return (
