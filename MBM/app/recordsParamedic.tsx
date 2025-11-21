@@ -7,6 +7,8 @@ import NavigationBar from '@/components/ui/NavigationBar';
 import { useStoredDataController } from '@/Controlador/storedDataController';
 import styles from '@/Styles/styles';
 
+import { userType as fetchUserType } from '@/Controlador/navBar';
+
 
 
 
@@ -20,23 +22,21 @@ export default function RecordsParamedic() {
     { id: 4, name: 'Ana Gomez', date: '05 Octubre', summary: 'Atencion por picadura de insecto. Awadawdawdawdawdawdawdawdawd' },
   ];
 
-  const [userType, setUserType] = useState('user');
+  const [userType, setUserType] = useState<string>('user');
 
   const storedDataController = useStoredDataController();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await storedDataController.getStoredData('userType');
-        if (data) {
-          setUserType(data);
-        }
-      } catch (err) {
-        console.error('Error reading stored userType', err);
-      }
-    };
-    fetchData();
-  }, []);
+          let mounted = true;
+          fetchUserType()
+              .then((t) => {
+                  if (mounted && t) setUserType(t);
+              })
+              .catch((err) => {
+                  console.error('NavigationBar: fetchUserType failed', err);
+              });
+          return () => { mounted = false; };
+  },[]);
 
   return (
     <View style={styles.Background}>
@@ -44,7 +44,7 @@ export default function RecordsParamedic() {
           <Text style={[styles.HeaderText, { marginTop: 100 }]}>Registros</Text>
         </View>
         <View style= {[styles.Separator]}></View>
-        {userType === 'medic' ? (
+        {userType === 'medico' ? (
           <ScrollView style={styles.scrollViewStyleRegisters} contentContainerStyle={{ paddingBottom: 10 }}>
             <View style={{ alignItems: 'center', marginTop: 20 }}>
               {testRecords.map(record => (
@@ -70,7 +70,7 @@ export default function RecordsParamedic() {
           </View>
           ) : null
         }
-        <NavigationBar userType={userType} currentTab='history'/>
+        <NavigationBar currentTab='history'/>
     </View>
   );
 }

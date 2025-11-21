@@ -1,4 +1,4 @@
-import { useFonts } from 'expo-font';
+import { loadScreen } from '@/Controlador/loadScreen';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Image, Text, View } from 'react-native';
@@ -7,22 +7,24 @@ import styles from '../../Styles/styles';
 export default function App() {
   const router = useRouter();
 
-  const [fontsLoaded] = useFonts({
-    'Jura-Regular': require('../../assets/Fonts/Jura-Regular.ttf'),
-    'BebasNeue-Regular': require('../../assets/Fonts/BebasNeue-Regular.ttf'),
-    'Jura-Bold': require('../../assets/Fonts/Jura-Bold.ttf'),
-  });
-
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace('/mapView'); 
-  }, 2000); 
-    return () => clearTimeout(timer);
-  }, [router]);
+    let mounted = true;
 
-  if (!fontsLoaded) {
-    return null; 
-  }
+    const run = async () => {
+      try {
+        await loadScreen(router, 2000);
+      } catch (err) {
+        console.error('Error in loadScreen:', err);
+        if (mounted) router.replace('/mapView');
+      }
+    };
+
+    run();
+
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
 
   return (
     <View style={styles.BackgroundForms}>

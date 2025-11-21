@@ -88,7 +88,7 @@ export default function MapScreen() {
           />
         ))}
       </MapView>
-          <NavigationBar userType={userType} currentTab="mapView" />
+          <NavigationBar currentTab="mapView" />
     </View>
   );
 }

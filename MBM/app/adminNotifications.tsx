@@ -113,7 +113,7 @@ export default function AdminNotifications() {
           )}
         </View>
       </View>
-      <NavigationBar userType="admin" currentTab='alert'/>
+      <NavigationBar currentTab='alert'/>
     </View>
   );
 }

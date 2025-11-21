@@ -46,7 +46,7 @@ export default function LogIn() {
             Registrar Usuario
           </Text>
         </View>
-        <NavigationBar userType="user" currentTab="profile" />
+        <NavigationBar currentTab="profile" />
       </View>
     </GestureHandlerRootView>
   );

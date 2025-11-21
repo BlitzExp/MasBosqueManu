@@ -1,12 +1,29 @@
+import React, { useEffect, useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { userType as fetchUserType } from '../../Controlador/navBar';
 
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import styles from '../../Styles/styles';
 
-export default function NavigationBar({ userType, currentTab } : { userType: string; currentTab: string }) {
-    const isAdmin = userType === 'admin';
-    const isMedic = userType === 'medic';
+export default function NavigationBar({ currentTab } : { currentTab: string }) {
+    const [userType, setUserType] = useState<string>('user');
+    const router = useRouter();
+
+    useEffect(() => {
+        let mounted = true;
+        fetchUserType()
+            .then((t) => {
+                if (mounted && t) setUserType(t);
+            })
+            .catch((err) => {
+                console.error('NavigationBar: fetchUserType failed', err);
+            });
+        return () => { mounted = false; };
+    }, []);
+
+    const isAdmin = userType === 'admin' || userType === 'administrador';
+    const isMedic = userType === 'medic' || userType === 'medico';
     const isUser = userType === 'user';
 
     const mapView = currentTab === 'mapView';

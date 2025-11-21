@@ -1,12 +1,11 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { useStoredDataController } from '../Controlador/storedDataController';
 import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
+import { clearUserData } from '../services/localdatabase';
 import { supabase } from '../services/supabase';
-import { Alert } from 'react-native';
-import { useStoredDataController } from '../Controlador/storedDataController';
 
 export default function EditProfile() {
 
@@ -24,6 +23,7 @@ export default function EditProfile() {
   const handleLogout = async () => {
     try {
     await supabase.auth.signOut();
+    await clearUserData();
     router.replace("/logIn");
     } catch (err: any) {
     Alert.alert("Error", "No se pudo cerrar sesión.");
@@ -80,7 +80,7 @@ export default function EditProfile() {
         <Text style={styles.fieldInput}> {name}</Text>
       </View>
       {
-        rol === 'medico' && (
+        rol === 'medic' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>N. Visitas</Text>
             <Text style={styles.fieldInput}> {nVisitas}</Text>
@@ -93,7 +93,7 @@ export default function EditProfile() {
         <Text style={styles.fieldInput}> {registro}</Text>
       </View>
       {
-        rol === 'medico' && (
+        rol === 'medic' && (
           <View style={styles.userInputContainer}>
             <Text style={styles.fieldName}>Última Visita</Text>
             <Text style={styles.fieldInput}> {lastVisit}</Text>
@@ -109,7 +109,7 @@ export default function EditProfile() {
         <Text style={styles.redButtonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
 
-      <NavigationBar userType={userType} currentTab="profile" />
+      <NavigationBar currentTab="profile" />
     </View>
   );
 }

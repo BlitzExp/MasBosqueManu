@@ -72,7 +72,7 @@ export default function Register() {
             Iniciar Sesión
           </Text>
         </View>
-        <NavigationBar userType="user" currentTab="profile" />
+        <NavigationBar currentTab="profile" />
       </View>
     </GestureHandlerRootView>
   );
