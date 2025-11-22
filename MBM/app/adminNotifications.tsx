@@ -1,119 +1,107 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 import NavigationBar from '../components/ui/NavigationBar';
-
 import styles from '../Styles/styles';
+
+import { getPendingArrivalAlerts, acceptArrivalAlert } from '@/services/arrivalAlertService';
 
 export default function AdminNotifications() {
   const router = useRouter();
 
-  const [arrivalRequestMenu, setArrivalRequestMenu] =  React.useState(false);
-  const [emergencyAlertMenu, setEmergencyAlertMenu] =  React.useState(true);
+  const [arrivalRequestMenu, setArrivalRequestMenu] = useState(true);
+  const [emergencyAlertMenu, setEmergencyAlertMenu] = useState(false);
 
-  const toggleArrivalRequest = () => {
-    setArrivalRequestMenu(!arrivalRequestMenu);
-  } 
+  const [arrivalAlerts, setArrivalAlerts] = useState([]);
 
-  const toggleEmergencyAlert = () => {
-    setEmergencyAlertMenu(!emergencyAlertMenu);
-  }
+  const toggleArrivalRequest = () => setArrivalRequestMenu(!arrivalRequestMenu);
+  const toggleEmergencyAlert = () => setEmergencyAlertMenu(!emergencyAlertMenu);
 
-  const testDataLlegada = [
-    { id: 1, nombre: 'Nombre 1', message: 'Llego hace 5 minutos' },
-    { id: 2, nombre: 'Nombre 2', message: 'Llego hace 10 minutos' },
-    { id: 3, nombre: 'Nombre 3', message: 'Llego hace 15 minutos' },
-    { id: 4, nombre: 'Nombre 4', message: 'Llego hace 20 minutos' },
-    { id: 5, nombre: 'Nombre 5', message: 'Llego hace 25 minutos' },
-    { id: 6, nombre: 'Nombre 6', message: 'Llego hace 30 minutos' },
-    { id: 7, nombre: 'Nombre 7', message: 'Llego hace 35 minutos' },
-    { id: 8, nombre: 'Nombre 8', message: 'Llego hace 40 minutos' },
-    { id: 9, nombre: 'Nombre 9', message: 'Llego hace 45 minutos' },
-    { id: 10, nombre: 'Nombre 10', message: 'Llego hace 50 minutos' },
-  ];
+  const loadArrivalAlerts = async () => {
+    try {
+      const alerts = await getPendingArrivalAlerts();
+      setArrivalAlerts(alerts);
+    } catch (err) {
+      console.log("Error loading arrival alerts:", err);
+    }
+  };
 
-  const testDataEmergencia = [
-    { id: 1, nombre: 'Emergencia en Area 2', message: 'Hace 2 minutos' },
-    { id: 2, nombre: 'Emergencia en Area 3', message: 'Hace 7 minutos' },
-    { id: 3, nombre: 'Emergencia en Area 4', message: 'Hace 12 minutos' },
-    { id: 4, nombre: 'Emergencia en Area 5', message: 'Hace 17 minutos' },
-  ];
+  useEffect(() => {
+    loadArrivalAlerts();
+  }, []);
 
-  const handleSubmitLlegada = () => {
-    console.log('Enterado Llegada');
-  }
-
-  const handleSubmitEmergencia = () => {
-    console.log('Enterado Emergencia');
-  }
+  const handleAccept = async (id) => {
+    try {
+      await acceptArrivalAlert(id);
+      setArrivalAlerts((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.log("Error accepting alert:", err);
+    }
+  };
 
   return (
     <View style={styles.Background}>
-      <View>
-        <TouchableOpacity onPress={toggleArrivalRequest} style={styles.dropMenuContainer}>
-          <Text style={[styles.HeaderText, { marginTop: 0 }]}>Llegada</Text>
+      <Text style={[styles.HeaderText, { marginTop: 100 }]}>
+        Notificaciones
+      </Text>
+
+      <View style={styles.Separator}></View>
+
+      <ScrollView style={styles.scrollView}>
+        {/* ARRIVAL REQUESTS SECTION */}
+        <TouchableOpacity style={styles.menuButton} onPress={toggleArrivalRequest}>
+          <Text style={styles.menuButtonText}>Llegadas</Text>
           <MaterialCommunityIcons
-            name= {arrivalRequestMenu ? "menu-down" : "menu-right"}
-            size={40}
-            color="black"
-            style={styles.dropDownSimbol}
+            name={arrivalRequestMenu ? "chevron-up" : "chevron-down"}
+            size={24}
+            color="white"
           />
         </TouchableOpacity>
-        <View style= {[styles.Separator]}></View>
-        <View>
-          {arrivalRequestMenu && (
-            <>
-              <ScrollView style={styles.scrollViewStyle} contentContainerStyle={{ paddingBottom: 10 }}>
-                {testDataLlegada.map((alert) => (
-                  <View key={alert.id} style={styles.alertItem}>
-                    <View style={styles.alertTextContainer}>
-                      <Text style={styles.alertText}>{alert.nombre}</Text>
-                      <Text style={styles.alertTextSecondary}>{alert.message}</Text>
-                    </View>
-                    <TouchableOpacity onPress={handleSubmitLlegada} style={styles.redButtonAlert}>
-                      <Text style={styles.redButtonText}>Enterado</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </>
-          )}
-        </View>
-      </View>
-      <View>
-        <TouchableOpacity onPress={toggleEmergencyAlert} style={[styles.dropMenuContainer, { marginTop: 20 }]}>
-          <Text style={[styles.HeaderText, { marginTop: 0 }]}>Ayuda</Text>
+
+        {arrivalRequestMenu && (
+          <View style={{ marginTop: 10 }}>
+            {arrivalAlerts.length === 0 ? (
+              <Text style={styles.noDataText}>No hay solicitudes pendientes</Text>
+            ) : (
+              arrivalAlerts.map((alert) => (
+                <View key={alert.id} style={styles.alertItem}>
+                  <Text style={styles.registerTitle}>{alert.name}</Text>
+                  <Text style={styles.registerText}>
+                    Llegó a las {alert.arrivalTime}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.redButtonAlert}
+                    onPress={() => handleAccept(alert.id)}
+                  >
+                    <Text style={styles.redButtonText}>Aceptar</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
+          </View>
+        )}
+
+        {/* EMERGENCY ALERTS SECTION */}
+        <TouchableOpacity style={styles.menuButton} onPress={toggleEmergencyAlert}>
+          <Text style={styles.menuButtonText}>Emergencias</Text>
           <MaterialCommunityIcons
-            name= {emergencyAlertMenu ? "menu-down" : "menu-right"}
-            size={40}
-            color="black"
-            style={styles.dropDownSimbol}
+            name={emergencyAlertMenu ? "chevron-up" : "chevron-down"}
+            size={24}
+            color="white"
           />
         </TouchableOpacity>
-        <View style= {[styles.Separator]}></View>
-        <View>
-          {emergencyAlertMenu && (
-            <>
-              <ScrollView style={styles.scrollViewStyle} contentContainerStyle={{ paddingBottom: 10 }}>
-                {testDataEmergencia.map((alert) => (
-                  <View key={alert.id} style={styles.alertItem}>
-                    <View style={styles.alertTextContainer}>
-                      <Text style={styles.alertText}>{alert.nombre}</Text>
-                      <Text style={styles.alertTextSecondary}>{alert.message}</Text>
-                    </View>
-                    <TouchableOpacity onPress={handleSubmitEmergencia} style={styles.redButtonAlert}>
-                      <Text style={styles.redButtonText}>Aceptar</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </ScrollView>
-            </>
-          )}
-        </View>
-      </View>
-      <NavigationBar currentTab='alert'/>
+
+        {emergencyAlertMenu && (
+          <View style={{ marginTop: 10 }}>
+            <Text style={styles.noDataText}>No hay emergencias implementadas aún.</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      <NavigationBar userType="admin" />
     </View>
   );
 }

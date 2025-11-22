@@ -4,6 +4,9 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { supabase } from "@/services/supabase";
 import { Alert } from "react-native";
 import { createUserLog } from "@/services/logService";
+import { createArrivalAlert } from "@/services/arrivalAlertService";
+import { getUser as getLocalUser } from '@/services/localdatabase';
+
 
 import React from 'react';
 
@@ -30,13 +33,41 @@ export default function DailyJournal() {
     setDescription(text);
   };
 
-  const handleClockIn = () => {
-    const currentTime = new Date();
-    const hours = currentTime.getHours().toString().padStart(2, '0');
-    const minutes = currentTime.getMinutes().toString().padStart(2, '0');
-    const formattedTime = `${hours}:${minutes}`;
-    setArrivalHour(formattedTime);
+  const handleClockIn = async () => {
+  const currentTime = new Date();
+  const hours = currentTime.getHours().toString().padStart(2, "0");
+  const minutes = currentTime.getMinutes().toString().padStart(2, "0");
+  const formattedTime = `${hours}:${minutes}`;
+
+  setArrivalHour(formattedTime);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    Alert.alert("Error", "Debes iniciar sesión.");
+    return;
   }
+
+  // fallback to local DB name if the input field is empty
+  let nameToUse = name && name.trim() ? name.trim() : null;
+  if (!nameToUse) {
+    try {
+      const local = await getLocalUser();
+      if (local && local.name) nameToUse = local.name;
+    } catch (err) {
+      // ignore, we'll use default
+    }
+  }
+
+  await createArrivalAlert({
+    userID: user.id,
+    name: nameToUse || "Sin nombre",
+    arrivalTime: formattedTime,
+    exitTime: null
+  });
+
+  Alert.alert("Alerta enviada", "Tu llegada ha sido notificada al administrador.");
+};
+
 
   const handleClockOut = () => {
     const currentTime = new Date();
@@ -55,14 +86,25 @@ export default function DailyJournal() {
       return;
     }
 
-    if (!name.trim()) {
-    Alert.alert("Error", "Debes ingresar tu nombre.");
-    return;
+    // allow using name from local DB if input empty
+    let nameToUse = name && name.trim() ? name.trim() : null;
+    if (!nameToUse) {
+      try {
+        const local = await getLocalUser();
+        if (local && local.name) nameToUse = local.name;
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    if (!nameToUse) {
+      Alert.alert("Error", "Debes ingresar tu nombre.");
+      return;
     }
 
     const log = {
       userID: user.id,
-      name: name,           
+      name: nameToUse,           
       logDate: new Date().toISOString().split("T")[0],
       ingressTime: arrivalHour,
       exitTime: departureHour,

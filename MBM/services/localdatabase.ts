@@ -54,6 +54,29 @@ export const initDatabase = async () => {
       zoneTipe TEXT
     );
   `);
+  try {
+    db.getFirstSync("SELECT user_id FROM user_data LIMIT 1");
+  } catch (err) {
+    try {
+      db.execSync(`BEGIN TRANSACTION;
+        CREATE TABLE IF NOT EXISTS new_user_data (
+          user_id TEXT PRIMARY KEY NOT NULL,
+          name TEXT,
+          nVisits TEXT,
+          dateRegistered TEXT,
+          lastVisit TEXT,
+          role TEXT,
+          startSessionTime TEXT
+        );
+        INSERT INTO new_user_data (role)
+          SELECT role FROM user_data;
+        DROP TABLE user_data;
+        ALTER TABLE new_user_data RENAME TO user_data;
+      COMMIT;`);
+    } catch (migrateError) {
+      console.error("user_data migration error:", migrateError);
+    }
+  }
 };
 
 export const saveUser = async (
@@ -65,7 +88,8 @@ export const saveUser = async (
   role: string
 ) => {
   try {
-    db = SQLite.openDatabaseSync("localdatabase.db");
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
     const escape = (s: string) => s.replace(/'/g, "''");
     db.execSync(
       `
@@ -80,13 +104,8 @@ export const saveUser = async (
 
 export const getUserType: () => Promise<string> = async () => {
   try {
-    db = SQLite.openDatabaseSync("localdatabase.db");
-    db.execSync(`
-      CREATE TABLE IF NOT EXISTS user_data (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        role TEXT
-      );
-    `);
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
     const result = db.getFirstSync<{ role?: string }>(
       "SELECT role FROM user_data LIMIT 1"
     );
@@ -110,17 +129,8 @@ export const getUser = async (): Promise<{
   role?: string;
 } | null> => {
   try {
-    db = SQLite.openDatabaseSync("localdatabase.db");
-    db.execSync(`
-      CREATE TABLE IF NOT EXISTS user_data (
-        user_id TEXT PRIMARY KEY NOT NULL,
-        name TEXT,
-        nVisits TEXT,
-        dateRegistered TEXT,
-        lastVisit TEXT,
-        role TEXT
-      );
-    `);
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
 
     const result = db.getFirstSync<{
       user_id?: string;
