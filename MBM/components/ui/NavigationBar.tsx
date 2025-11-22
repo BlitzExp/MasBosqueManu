@@ -45,7 +45,7 @@ export default function NavigationBar({ currentTab } : { currentTab: string }) {
                         <MaterialCommunityIcons name="alert" style={[styles.navIcon, alert && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, alert && styles.activeText]}>Alertas</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItem]} onPress={() => router.replace('/recordsParamedic')}>
+                    <TouchableOpacity style={[styles.navItem, history && styles.activeNavItem]} onPress={() => router.replace('/recordsAdmin')}>
                         <MaterialCommunityIcons name="history" style={[styles.navIcon, history && styles.activeNavIcon]} />
                         <Text style={[styles.navtext, history && styles.activeText]}>Historial</Text>
                     </TouchableOpacity>

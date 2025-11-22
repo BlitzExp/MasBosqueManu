@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 import NavigationBar from '../components/ui/NavigationBar';
 
@@ -65,8 +65,12 @@ export default function AdminNotifications() {
         <View>
           {arrivalRequestMenu && (
             <>
-              <ScrollView style={styles.scrollViewStyle} contentContainerStyle={{ paddingBottom: 10 }}>
-                {testDataLlegada.map((alert) => (
+              <FlatList
+                data={testDataLlegada}
+                style={styles.scrollViewStyle}
+                contentContainerStyle={{ paddingBottom: 10 }}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item: alert }) => (
                   <View key={alert.id} style={styles.alertItem}>
                     <View style={styles.alertTextContainer}>
                       <Text style={styles.alertText}>{alert.nombre}</Text>
@@ -76,8 +80,8 @@ export default function AdminNotifications() {
                       <Text style={styles.redButtonText}>Enterado</Text>
                     </TouchableOpacity>
                   </View>
-                ))}
-              </ScrollView>
+                )}
+              />
             </>
           )}
         </View>
@@ -96,8 +100,12 @@ export default function AdminNotifications() {
         <View>
           {emergencyAlertMenu && (
             <>
-              <ScrollView style={styles.scrollViewStyle} contentContainerStyle={{ paddingBottom: 10 }}>
-                {testDataEmergencia.map((alert) => (
+              <FlatList
+                data={testDataEmergencia}
+                style={styles.scrollViewStyle}
+                contentContainerStyle={{ paddingBottom: 10 }}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item: alert }) => (
                   <View key={alert.id} style={styles.alertItem}>
                     <View style={styles.alertTextContainer}>
                       <Text style={styles.alertText}>{alert.nombre}</Text>
@@ -107,8 +115,8 @@ export default function AdminNotifications() {
                       <Text style={styles.redButtonText}>Aceptar</Text>
                     </TouchableOpacity>
                   </View>
-                ))}
-              </ScrollView>
+                )}
+              />
             </>
           )}
         </View>

@@ -143,7 +143,6 @@ export default function DailyJournal() {
                     value={description}
                     onChangeText={handleDescriptionChange}
                     style={[styles.inputField, { width: '100%', height: 150, textAlignVertical: 'top' }]}
-                    multiline
                   />
                 </View>
                 <View>

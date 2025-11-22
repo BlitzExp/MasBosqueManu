@@ -97,16 +97,3 @@ export default function EditProfile() {
     </View>
   );
 }
-
-
-/** Version para elementos editables
-<View style={styles.userInputContainer}> 
-        <Text style={styles.fieldName}>Nombre</Text>
-        <TextInput
-          placeholder="Nombre"
-          value={name}
-          onChangeText={setName}
-          style={styles.fieldInput}
-        />
-</View>
- */
