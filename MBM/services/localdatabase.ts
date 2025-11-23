@@ -1,3 +1,4 @@
+import { MapPin } from "@/Modelo/MapPins";
 import * as SQLite from "expo-sqlite";
 
 let db: SQLite.SQLiteDatabase | null = null;
@@ -51,7 +52,7 @@ export const initDatabase = async () => {
       name TEXT,
       latitude REAL,
       longitude REAL,
-      zoneTipe TEXT
+      zoneType TEXT
     );
   `);
 };
@@ -157,5 +158,54 @@ export const clearUserData = async (): Promise<void> => {
     db.execSync(`DELETE FROM user_data;`);
   } catch (error) {
     console.error("clearUserData error:", error);
+  }
+};
+
+export const addPinsLocations = async (pins: MapPin[]) => {
+  try {
+    db = SQLite.openDatabaseSync("localdatabase.db");
+
+    const escape = (s: any) =>
+      String(s ?? "").replace(/'/g, "''");
+
+    for (const pin of pins) {
+      db.execSync(`
+        INSERT OR REPLACE INTO locations (name, latitude, longitude, zoneType)
+        VALUES (
+          '${escape(pin?.name)}',
+          ${pin?.latitude ?? 0},
+          ${pin?.longitude ?? 0},
+          '${escape(pin?.zoneType)}'
+        );
+      `);
+    }
+  } catch (error) {
+    console.error("addPinsLocations error:", error);
+  }
+};
+
+
+export const getPinsLocations = async (): Promise<MapPin[]> => {
+  try {
+    db = SQLite.openDatabaseSync("localdatabase.db");
+    const results = db.getAllSync<{
+      location_id: number;
+      name: string;
+      latitude: number;
+      longitude: number;
+      zoneType?: string;
+    }>(
+      "SELECT location_id, name, latitude, longitude, zoneType FROM locations"
+    );
+    return results.map((row) => ({
+      id: String(row.location_id),
+      name: row.name,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      zoneType: row.zoneType,
+    }));
+  } catch (error) {
+    console.error("getPinsLocations error:", error);
+    return [];
   }
 };
