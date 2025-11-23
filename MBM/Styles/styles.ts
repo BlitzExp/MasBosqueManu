@@ -4,6 +4,7 @@ const windowHeight = Dimensions.get('window').height;
 const dropdownMaxHeight = Math.round(windowHeight * 0.3);
 const dropdownMaxHeightRegisters = Math.round(windowHeight * 0.8);
 
+
 const colors = {
   background: '#fdf7edff',
   navbackground: 'rgba(231, 222, 210, 1)',
@@ -228,12 +229,36 @@ export default StyleSheet.create({
     passwordContainer:
     {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingRight: '10%',
+      justifyContent: 'flex-start',
+      paddingRight: '0%',
     },
     Icons:
     {
       alignContent: 'flex-end',
+    },
+    passwordInner: {
+      width: '100%',
+      height: 40,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderColor: colors.gray,
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      marginBottom: 20,
+      backgroundColor: colors.white,
+    },
+    passwordTextInput: {
+      flex: 1,
+      paddingVertical: 0,
+      paddingHorizontal: 4,
+      fontSize: 16,
+    },
+    passwordIconButton: {
+      paddingLeft: 8,
+      paddingRight: 6,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
 
     redButton:
@@ -319,7 +344,6 @@ export default StyleSheet.create({
       color: colors.white,
     },
 
-    // simple dropdown styles used in Register screen
     dropdownButton: {
       backgroundColor: colors.white,
       borderRadius: 8,
@@ -362,6 +386,140 @@ export default StyleSheet.create({
       marginBottom: 10,
       fontFamily: fonts.Jura,
       marginRight: '45%',
+    },
+
+    recordsFilterContainer: {
+      paddingHorizontal: 16,
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    recordsCardUserName: {
+      fontSize: 18,
+      fontWeight: '700',
+      marginBottom: 8,
+    },
+
+    recordsInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+
+    recordsBox: {
+      width: '35%',
+      minWidth: 120,
+      marginHorizontal: 4,
+      
+    },
+
+    recordsDateInput: {
+      height: 40,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.white,
+    },
+
+    recordsDateText: {
+      fontSize: 14,
+      color: colors.black,
+    },
+
+    recordsFilterButtonInline: {
+      flex: 1,
+      height: 40,
+      paddingHorizontal: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 20,
+      marginLeft: 8,
+      width: undefined,
+      alignSelf: 'stretch',
+    },
+
+    recordsModalBackground: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.35)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    recordsModalContainer: {
+      backgroundColor: colors.white,
+      padding: 20,
+      borderRadius: 12,
+      minWidth: 320,
+      minHeight: 320,
+      justifyContent: 'center',
+      alignItems: 'stretch',
+    },
+
+    recordsModalButtonRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 12,
+    },
+
+    recordsModalActionButton: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginHorizontal: 4,
+      backgroundColor: '#f0f0f0',
+    },
+
+    recordsCard: {
+      flexDirection: 'row',
+      backgroundColor: colors.white,
+      borderRadius: 12,
+      padding: 12,
+      marginVertical: 8,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+      width: '100%',
+    },
+
+    recordsCardImage: {
+      width: 86,
+      height: 86,
+      borderRadius: 10,
+      backgroundColor: '#ececec',
+      marginRight: 12,
+    },
+
+    recordsCardContent: {
+      flex: 1,
+    },
+
+    recordsCardDate: {
+      fontSize: 16,
+      fontWeight: '700',
+      marginBottom: 6,
+    },
+
+    recordsCardTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      marginBottom: 6,
+    },
+
+    recordsCardSubtitle: {
+      color: '#666',
+      marginBottom: 8,
+    },
+
+    recordsMoreButton: {
+      backgroundColor: '#ff7a00',
+      alignSelf: 'flex-start',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
     },
 
 });

@@ -1,6 +1,12 @@
+import { UserLog } from '@/Modelo/UserLog';
 import { supabase } from './supabase';
 
-export const createUserLog = async (log) => {
+
+export type UserLogInsert = Omit<UserLog, 'id'>;
+
+
+
+export const createUserLog = async (log: UserLogInsert): Promise<UserLog> => {
   const {
     userID,
     name,
@@ -29,8 +35,18 @@ export const createUserLog = async (log) => {
   return data;
 };
 
+export const getAllUserLogs = async (): Promise<UserLog[]> => {
+  const { data, error } = await supabase
+    .from('UserLogs')
+    .select('*')
+    .order('logDate', { ascending: false });
 
-export const getUserLogs = async (userID) => {
+  if (error) throw error;
+
+  return data as UserLog[];
+};
+
+export const getUserLogs = async (userID: string): Promise<UserLog[]> => {
   const { data, error } = await supabase
     .from('UserLogs')
     .select('*')
@@ -38,10 +54,10 @@ export const getUserLogs = async (userID) => {
     .order('logDate', { ascending: false });
 
   if (error) throw error;
-  return data;
+  return data as UserLog[];
 };
 
-export const updateUserLog = async (logID, updates) => {
+export const updateUserLog = async (logID: string, updates: Partial<UserLog>): Promise<UserLog> => {
   const { data, error } = await supabase
     .from('UserLogs')
     .update(updates)
@@ -53,7 +69,7 @@ export const updateUserLog = async (logID, updates) => {
   return data;
 };
 
-export const deleteUserLog = async (logID) => {
+export const deleteUserLog = async (logID: string): Promise<boolean> => {
   const { error } = await supabase
     .from('UserLogs')
     .delete()
@@ -62,4 +78,5 @@ export const deleteUserLog = async (logID) => {
   if (error) throw error;
   return true;
 };
+
 

@@ -4,56 +4,16 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import NavigationBar from '../components/ui/NavigationBar';
 
 import {useStoredDataController} from '../Controlador/storedDataController';
+import { fetchMapPins } from '../Controlador/mapPinsController';
+import { MapPin } from '../Modelo/MapPins';
 
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-const pins = [
-  {
-    latitude: 20.595209,
-    longitude: -103.547140,
-    title: 'Torre 1'
-  },
-  {
-    latitude: 20.604368,
-    longitude: -103.603445,
-    title: 'Torre 3'
-  },
-  {
-    latitude: 20.623970,
-    longitude: -103.562075,
-    title: 'Arbol Manu / Fin de Toboganes'
-  },
-  {
-    latitude: 20.615114,
-    longitude: -103.534941,
-    title: 'Check Point'
-  },
-  {
-    latitude: 20.622600,
-    longitude:  -103.535956,
-    title: 'El Arbol / Final Garrison'
-  },
-  {
-    latitude: 20.614480,
-    longitude: -103.519726,
-    title: 'El Tecuan'
-  },
-  {
-    latitude: 20.617585,
-    longitude: -103.509111,
-    title: 'El Ocho y Medio'
-  },
-  {
-    latitude: 20.674321,
-    longitude: -103.514444,
-    title: 'Torre 2'
-  }
-];
-
 export default function MapScreen() {
   const router = useRouter();
   const [userType, setUserType] = useState('user');
+  const [pins, setPins] = useState<MapPin[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +24,20 @@ export default function MapScreen() {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const loadPins = async () => {
+      try {
+        const fetched = await fetchMapPins();
+        setPins(fetched);
+      } catch (err) {
+        console.error('Error loading map pins:', err);
+        setPins([]);
+      }
+    };
+
+    loadPins();
   }, []);
 
 
@@ -82,9 +56,9 @@ export default function MapScreen() {
       >
         {pins.map((pin, index) => (
           <Marker
-            key={index}
+            key={(pin as any).id ?? index}
             coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
-            title={pin.title}
+            title={(pin as any).name ?? (pin as any).title}
           />
         ))}
       </MapView>

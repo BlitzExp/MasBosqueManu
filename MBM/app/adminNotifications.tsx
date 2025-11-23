@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, Flatlist } from 'react-native';
 
 import NavigationBar from '../components/ui/NavigationBar';
 import styles from '../Styles/styles';
@@ -93,15 +93,32 @@ export default function AdminNotifications() {
             color="white"
           />
         </TouchableOpacity>
-
-        {emergencyAlertMenu && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={styles.noDataText}>No hay emergencias implementadas aún.</Text>
-          </View>
-        )}
-      </ScrollView>
-
-      <NavigationBar userType="admin" />
+        <View style= {[styles.Separator]}></View>
+        <View>
+          {emergencyAlertMenu && (
+            <>
+              <FlatList
+                data={testDataEmergencia}
+                style={styles.scrollViewStyle}
+                contentContainerStyle={{ paddingBottom: 10 }}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item: alert }) => (
+                  <View key={alert.id} style={styles.alertItem}>
+                    <View style={styles.alertTextContainer}>
+                      <Text style={styles.alertText}>{alert.nombre}</Text>
+                      <Text style={styles.alertTextSecondary}>{alert.message}</Text>
+                    </View>
+                    <TouchableOpacity onPress={handleSubmitEmergencia} style={styles.redButtonAlert}>
+                      <Text style={styles.redButtonText}>Aceptar</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </>
+          )}
+        </View>
+      </View>
+      <NavigationBar currentTab='alert'/>
     </View>
   );
 }

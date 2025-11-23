@@ -1,10 +1,9 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
-import styles from '../Styles/styles';
 import NavigationBar from '../components/ui/NavigationBar';
-import { clearUserData } from '../services/localdatabase';
-import { supabase } from '../services/supabase';
+import { fetchCurrentUserProfile, logoutCurrentUser } from '../Controlador/profileController';
+import styles from '../Styles/styles';
 
 export default function EditProfile() {
 
@@ -18,39 +17,30 @@ export default function EditProfile() {
 
   const handleLogout = async () => {
     try {
-    await supabase.auth.signOut();
-    await clearUserData();
-    router.replace("/logIn");
+      await logoutCurrentUser();
+      router.replace('/logIn');
     } catch (err: any) {
-    Alert.alert("Error", "No se pudo cerrar sesión.");
+      Alert.alert('Error', 'No se pudo cerrar sesión.');
     }
   };
 
   useEffect(() => {
     const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      try {
+        const profile = await fetchCurrentUserProfile();
+        if (!profile) {
+          router.replace('/logIn');
+          return;
+        }
 
-      if (!user) {
-        router.replace('/logIn');
-        return;
+        setName(profile.name || '');
+        setRol(profile.role || '');
+        setNVisitas(profile.nVisits ?? '0');
+        setRegistro(profile.dateRegistered ?? '');
+        setLastVisit(profile.lastVisit ?? '');
+      } catch (err) {
+        console.log('Error fetching profile:', err);
       }
-
-      const { data: profile, error } = await supabase
-        .from('Profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.log("Error fetching profile:", error);
-        return;
-      }
-
-      setName(profile.name || '');
-      setRol(profile.role || '');
-      setNVisitas(profile.nvisits?.toString() ?? '0');
-      setRegistro(profile.dateRegistered ?? '');
-      setLastVisit(profile.lastVisit ?? '');
     };
     loadProfile();
   }, []);
@@ -97,16 +87,3 @@ export default function EditProfile() {
     </View>
   );
 }
-
-
-/** Version para elementos editables
-<View style={styles.userInputContainer}> 
-        <Text style={styles.fieldName}>Nombre</Text>
-        <TextInput
-          placeholder="Nombre"
-          value={name}
-          onChangeText={setName}
-          style={styles.fieldInput}
-        />
-</View>
- */
