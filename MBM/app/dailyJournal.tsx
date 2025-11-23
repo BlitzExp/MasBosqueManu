@@ -1,4 +1,4 @@
-import createLogController, { clockIn, clockOut, submitLog } from '@/Controlador/createLogController';
+import { clockIn, clockOut, submitLog } from '@/Controlador/createLogController';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';

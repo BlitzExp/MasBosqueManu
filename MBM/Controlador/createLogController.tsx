@@ -1,7 +1,7 @@
 import type { UserLog } from '@/Modelo/UserLog';
+import { getUserName } from '@/services/localdatabase';
 import { createUserLog } from '@/services/logService';
 import { supabase } from '@/services/supabase';
-import { getUserName } from '@/services/localdatabase';
 import { Alert } from 'react-native';
 
 export function getCurrentTimeString() {
@@ -20,7 +20,6 @@ export function clockOut(setDepartureHour: (value: string) => void) {
 }
 
 type SubmitParams = {
-  name: string;
   arrivalHour: string;
   departureHour: string;
   description?: string;
