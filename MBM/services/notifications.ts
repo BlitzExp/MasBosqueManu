@@ -1,4 +1,3 @@
-// src/services/notifications.ts
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
@@ -15,13 +14,11 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
-    // Newer Expo SDKs require these additional iOS presentation hints
     shouldShowBanner: true,
     shouldShowList: true,
   }),
 });
 
-/** Ask for permission and (Android) ensure a channel exists */
 export async function ensureNotificationReady() {
   const { status: existing } = await Notifications.getPermissionsAsync();
   let status = existing;
@@ -42,7 +39,6 @@ export async function ensureNotificationReady() {
   }
 }
 
-/** Get Expo push token (works only on real devices) */
 export async function getExpoPushToken(): Promise<string | null> {
   await ensureNotificationReady();
   if (!Device.isDevice) return null;
@@ -50,7 +46,6 @@ export async function getExpoPushToken(): Promise<string | null> {
   return token ?? null;
 }
 
-/** Schedule a local notification (used as Simulator fallback and quick tests) */
 export async function scheduleLocalNotification(payload: PushPayload, inSeconds = 5) {
   await ensureNotificationReady();
   return Notifications.scheduleNotificationAsync({
@@ -68,11 +63,7 @@ export async function scheduleLocalNotification(payload: PushPayload, inSeconds 
   });
 }
 
-/**
- * Send a server push via Expo Push API.
- * For production, call this from YOUR backend.
- * This client-side call is for testing only.
- */
+
 export async function sendExpoServerPush(
   expoPushToken: string,
   payload: PushPayload
@@ -94,7 +85,6 @@ export async function sendExpoServerPush(
   return json;
 }
 
-/** Subscribe to foreground/tap events. Returns an unsubscribe function. */
 export function subscribeNotificationEvents(opts: {
   onReceived?: (n: Notifications.Notification) => void;
   onResponse?: (r: Notifications.NotificationResponse) => void;
@@ -112,7 +102,6 @@ export function subscribeNotificationEvents(opts: {
   return () => subs.forEach(s => s.remove());
 }
 
-/** Utility: true if we are on a Simulator (no APNs) */
 export function isSimulator(): boolean {
   return !Device.isDevice;
 }

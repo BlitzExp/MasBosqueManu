@@ -344,7 +344,6 @@ export default StyleSheet.create({
       color: colors.white,
     },
 
-    // simple dropdown styles used in Register screen
     dropdownButton: {
       backgroundColor: colors.white,
       borderRadius: 8,
@@ -389,7 +388,6 @@ export default StyleSheet.create({
       marginRight: '45%',
     },
 
-    /* Styles for Records screen (moved from local file) */
     recordsFilterContainer: {
       paddingHorizontal: 16,
       marginTop: 10,

@@ -62,11 +62,8 @@ export default function RecordsAdmin() {
       </View>
 
       <View style={[styles.Separator]} />
-
-      {/* CONTENEDOR DE FECHAS + FILTRAR */}
       <View style={styles.recordsFilterContainer}>
         <View style={styles.recordsInputRow}>
-          {/* NOMBRE */}
           <View style={[styles.recordsBox, {width: '100%'}]}>
             <Text style={styles.fieldName}>Nombre</Text>
             <View style={styles.recordsDateInput}>
@@ -81,8 +78,6 @@ export default function RecordsAdmin() {
           </View>
         </View>
         <View style={styles.recordsInputRow}>
-
-          {/* DESDE */}
           <View style={styles.recordsBox}>
             <Text style={styles.fieldName}>Desde</Text>
             <TouchableOpacity
@@ -136,7 +131,6 @@ export default function RecordsAdmin() {
             </Modal>
           </View>
 
-          {/* HASTA */}
           <View style={styles.recordsBox}>
             <Text style={styles.fieldName}>Hasta</Text>
             <TouchableOpacity
@@ -190,7 +184,6 @@ export default function RecordsAdmin() {
             </Modal>
           </View>
 
-          {/* FILTRAR EN LA MISMA FILA */}
           <TouchableOpacity
             onPress={applyFilter}
             style={[styles.redButton, styles.recordsFilterButtonInline]}

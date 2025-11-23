@@ -60,12 +60,8 @@ export default function RecordsParamedic() {
       </View>
 
       <View style={[styles.Separator]} />
-
-      {/* CONTENEDOR DE FECHAS + FILTRAR */}
       <View style={styles.recordsFilterContainer}>
         <View style={styles.recordsInputRow}>
-
-          {/* DESDE */}
           <View style={styles.recordsBox}>
             <Text style={styles.fieldName}>Desde</Text>
             <TouchableOpacity
@@ -118,8 +114,6 @@ export default function RecordsParamedic() {
               </View>
             </Modal>
           </View>
-
-          {/* HASTA */}
           <View style={styles.recordsBox}>
             <Text style={styles.fieldName}>Hasta</Text>
             <TouchableOpacity
@@ -172,8 +166,6 @@ export default function RecordsParamedic() {
               </View>
             </Modal>
           </View>
-
-          {/* FILTRAR EN LA MISMA FILA */}
           <TouchableOpacity
             onPress={applyFilter}
             style={[styles.redButton, styles.recordsFilterButtonInline]}

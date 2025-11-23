@@ -68,7 +68,6 @@ export function useAuthController() {
     }
   }
 
-// REGISTER
 const register = async (email: string, password: string, userType: string, nameInput: string) => {
   if (!email || !password || !userType || !nameInput) {
     Alert.alert("Error", "Por favor llena todos los campos.");
