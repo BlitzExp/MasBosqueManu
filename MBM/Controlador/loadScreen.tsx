@@ -17,7 +17,7 @@ export const loadScreen = async (router: any, minDelayMs = 2000): Promise<void> 
   }
 
   try {
-    router.replace('/mapView');
+    //router.replace('/mapView');
   } catch (err) {
     console.error('Navigation failed in loadScreen controller', err);
     throw err;
