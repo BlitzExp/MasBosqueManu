@@ -152,6 +152,22 @@ export const getUser = async (): Promise<{
   }
 };
 
+export const getUserName = async (): Promise<string> => {
+  try {
+    db = SQLite.openDatabaseSync("localdatabase.db");
+    const result = db.getFirstSync<{ name?: string }>(
+      "SELECT name FROM user_data LIMIT 1"
+    );
+    if (result && result.name) {
+      return result.name;
+    }
+    return "";
+  } catch (error) {
+    console.error("getUserName error:", error);
+    return "";
+  }
+};
+
 export const clearUserData = async (): Promise<void> => {
   try {
     db = SQLite.openDatabaseSync("localdatabase.db");
