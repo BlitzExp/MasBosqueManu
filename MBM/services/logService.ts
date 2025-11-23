@@ -35,6 +35,16 @@ export const createUserLog = async (log: UserLogInsert): Promise<UserLog> => {
   return data;
 };
 
+export const getAllUserLogs = async (): Promise<UserLog[]> => {
+  const { data, error } = await supabase
+    .from('UserLogs')
+    .select('*')
+    .order('logDate', { ascending: false });
+
+  if (error) throw error;
+
+  return data as UserLog[];
+};
 
 export const getUserLogs = async (userID: string): Promise<UserLog[]> => {
   const { data, error } = await supabase

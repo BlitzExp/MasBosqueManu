@@ -26,18 +26,24 @@ export function showLogsController() {
     };
 
     const filterLogsBy = async (fromDate: string, toDate: string): Promise<UserLog[]> => {
-        const allLogs = await fetchLogs(); //Cambiarlo a local una vez implementada la cache
-        const from = parseDateInput(fromDate);
-        const to = parseDateInput(toDate);
-        const filtered = allLogs.filter((log) => {
-            if (!log || !log.logDate) return false;
-            const ld = new Date(String(log.logDate));
-            if (isNaN(ld.getTime())) return false;
-            if (from && ld < from) return false;
-            if (to && ld > to) return false;
-            return true;
-        });
-        return filtered;
+        try {
+            const allLogs = await fetchLogs();
+            const from = parseDateInput(fromDate);
+            const to = parseDateInput(toDate);
+            const filtered = allLogs.filter((log) => {
+                if (!log || !log.logDate) return false;
+                const ld = new Date(String(log.logDate));
+                if (isNaN(ld.getTime())) return false;
+                if (from && ld < from) return false;
+                if (to && ld > to) return false;
+                return true;
+            });
+            return filtered;
+        } catch (err) {
+            console.error('Error filtering logs by name:', err);
+            return [];
+        }
+        
     };
 
     const parseDateInput = (s: string): Date | null => {

@@ -1,8 +1,9 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
-import { useAuthController } from '../Controlador/Authenticate';
 import NavigationBar from '../components/ui/NavigationBar';
+import { useAuthController } from '../Controlador/Authenticate';
 import styles from '../Styles/styles';
 
 export default function LogIn() {
@@ -10,6 +11,7 @@ export default function LogIn() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = () => {
     login(email, password);
@@ -21,22 +23,38 @@ export default function LogIn() {
         <View style={styles.form}>
           <Text style={styles.textTitle}>Iniciar Sesión</Text>
 
-          <Text style={styles.textInput}>Usuario</Text>
+          <Text style={styles.textInput}>Correo</Text>
           <TextInput
-            placeholder="Usuario"
+            placeholder="email@gmail.com"
             value={email}
             onChangeText={setEmail}
             style={styles.inputField}
           />
 
           <Text style={styles.textInput}>Contraseña</Text>
-          <TextInput
-            placeholder="Contraseña"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            style={styles.inputField}
-          />
+          <View style={styles.passwordContainer}>
+            <View style={styles.passwordInner}>
+              <TextInput
+                placeholder="Contraseña"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                style={styles.passwordTextInput}
+                placeholderTextColor="rgba(0,0,0,0.2)"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(prev => !prev)}
+                accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                style={styles.passwordIconButton}
+              >
+                <MaterialCommunityIcons
+                  name={showPassword ? 'eye' : 'eye-off'}
+                  size={20}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <TouchableOpacity onPress={handleSubmit} style={styles.buttonStart}>
             <Text style={styles.buttonStartText}>Iniciar Sesión</Text>

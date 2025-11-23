@@ -6,25 +6,6 @@ import { supabase } from '../services/supabase';
 export function useAuthController() {
   const router = useRouter();
 
-/*     const handleLogin = (user: string, password: string) => {
-
-        
-        if (user === 'admin' && password === '1234') {
-            const storedDataController = useStoredDataController();
-            storedDataController.setStoredData('userType', 'admin');
-            router.replace('/mapView');
-            return { success: true };
-        }else if (user === 'medic' && password === '1234') {
-            const storedDataController = useStoredDataController();
-            storedDataController.setStoredData('userType', 'medic');
-            router.replace('/mapView');
-            return { success: true };
-        } else {
-            Alert.alert('Error', 'Usuario o contraseña incorrectos.');
-            return { success: false };
-        }
-      } */
-  // LOGIN
   const login = async (email: string, password: string) => {
     if (!email || !password) {
       Alert.alert("Error", "Por favor llena todos los campos.");
@@ -54,13 +35,9 @@ export function useAuthController() {
 
   const storeUserData = async () => {
     try {
-      // Get currently authenticated user (online)
       const { data: { user } } = await supabase.auth.getUser();
-
-      // Read any locally stored user data
       const local = await getUser();
 
-      // Fetch online profile if we have an authenticated user
       let profile: any = null;
       if (user && user.id) {
         const { data: profileData, error: profileError } = await supabase
@@ -71,7 +48,6 @@ export function useAuthController() {
         if (!profileError) profile = profileData || null;
       }
 
-      // Merge priority: online profile > local DB > sensible defaults
       const finalId = user?.id ?? local?.userId ?? '';
       const finalName = profile?.name ?? local?.name ?? '';
       const finalNvisits =
@@ -96,6 +72,11 @@ export function useAuthController() {
 const register = async (email: string, password: string, userType: string, nameInput: string) => {
   if (!email || !password || !userType || !nameInput) {
     Alert.alert("Error", "Por favor llena todos los campos.");
+    return { success: false };
+  }
+
+  if (password.length < 6) {
+    Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres.");
     return { success: false };
   }
 

@@ -1,7 +1,7 @@
-import { showLogsController } from '@/Controlador/showLogs';
+import { showLogsController } from '@/Controlador/showLogsClient';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 
 import NavigationBar from '@/components/ui/NavigationBar';
 import styles from '@/Styles/styles';
@@ -37,7 +37,7 @@ export default function RecordsParamedic() {
   }, []);
 
   const applyFilter = () => {
-    if (!fromDate && !toDate) {
+    if (!fromDate && !toDate ) {
       controller
         .fetchLogs()
         .then((all) => setLogs(all))
@@ -60,25 +60,48 @@ export default function RecordsParamedic() {
       </View>
 
       <View style={[styles.Separator]} />
-      <View style={localStyles.filterContainer}>
-        <View style={localStyles.inputRow}>
-          <View style={localStyles.box}>
-            <Text style={styles.fieldName}>Desde</Text>
 
+      {/* CONTENEDOR DE FECHAS + FILTRAR */}
+      <View style={styles.recordsFilterContainer}>
+        <View style={styles.recordsInputRow}>
+
+          {/* DESDE */}
+          <View style={styles.recordsBox}>
+            <Text style={styles.fieldName}>Desde</Text>
             <TouchableOpacity
-              style={localStyles.dateInput}
+              style={styles.recordsDateInput}
               onPress={() => setShowFromPicker(true)}
             >
-              <Text style={localStyles.dateText}>{fromDate || 'YYYY-MM-DD'}</Text>
+              <Text style={styles.recordsDateText}>{fromDate || 'YYYY-MM-DD'}</Text>
             </TouchableOpacity>
 
             <Modal visible={showFromPicker} transparent animationType="fade">
-              <View style={localStyles.modalBackground}>
-                <View style={localStyles.modalContainer}>
+              <View style={styles.recordsModalBackground}>
+                <View style={styles.recordsModalContainer}>
+                  <View style={styles.recordsModalButtonRow}>
+                    <TouchableOpacity
+                      style={styles.recordsModalActionButton}
+                      onPress={() => {
+                        setFromPickerDate(undefined);
+                        setFromDate('');
+                        setShowFromPicker(false);
+                      }}
+                    >
+                      <Text>Quitar fecha</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.recordsModalActionButton]}
+                      onPress={() => setShowFromPicker(false)}
+                    >
+                      <Text>Cerrar</Text>
+                    </TouchableOpacity>
+                  </View>
                   <DateTimePicker
                     value={fromPickerDate ?? new Date()}
                     mode="date"
-                    display="inline"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+                    textColor="black"
                     onChange={(event: DateTimePickerEvent, date?: Date) => {
                       if (event.type === 'dismissed') {
                         setShowFromPicker(false);
@@ -97,23 +120,42 @@ export default function RecordsParamedic() {
           </View>
 
           {/* HASTA */}
-          <View style={localStyles.box}>
+          <View style={styles.recordsBox}>
             <Text style={styles.fieldName}>Hasta</Text>
-
             <TouchableOpacity
-              style={localStyles.dateInput}
+              style={styles.recordsDateInput}
               onPress={() => setShowToPicker(true)}
             >
-              <Text style={localStyles.dateText}>{toDate || 'YYYY-MM-DD'}</Text>
+              <Text style={styles.recordsDateText}>{toDate || 'YYYY-MM-DD'}</Text>
             </TouchableOpacity>
 
             <Modal visible={showToPicker} transparent animationType="fade">
-              <View style={localStyles.modalBackground}>
-                <View style={localStyles.modalContainer}>
+              <View style={styles.recordsModalBackground}>
+                <View style={styles.recordsModalContainer}>
+                  <View style={styles.recordsModalButtonRow}>
+                    <TouchableOpacity
+                      style={styles.recordsModalActionButton}
+                      onPress={() => {
+                        setToPickerDate(undefined);
+                        setToDate('');
+                        setShowToPicker(false);
+                      }}
+                    >
+                      <Text>Quitar fecha</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.recordsModalActionButton ]}
+                      onPress={() => setShowToPicker(false)}
+                    >
+                      <Text>Cerrar</Text>
+                    </TouchableOpacity>
+                  </View>
                   <DateTimePicker
                     value={toPickerDate ?? new Date()}
                     mode="date"
-                    display="inline"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+                    textColor="black"
                     onChange={(event: DateTimePickerEvent, date?: Date) => {
                       if (event.type === 'dismissed') {
                         setShowToPicker(false);
@@ -130,18 +172,17 @@ export default function RecordsParamedic() {
               </View>
             </Modal>
           </View>
+
+          {/* FILTRAR EN LA MISMA FILA */}
+          <TouchableOpacity
+            onPress={applyFilter}
+            style={[styles.redButton, styles.recordsFilterButtonInline]}
+          >
+            <Text style={styles.redButtonText}>Filtrar</Text>
+          </TouchableOpacity>
+
         </View>
-
-        {/* BOTÓN FILTRAR */}
-        <TouchableOpacity
-          onPress={applyFilter}
-          style={[localStyles.filterButton, styles.redButton]}
-        >
-          <Text style={styles.redButtonText}>Filtrar</Text>
-        </TouchableOpacity>
       </View>
-
-      {/* ---------------- LISTA ---------------- */}
       <FlatList
         data={logs}
         style={styles.scrollViewStyleRegisters}
@@ -150,27 +191,20 @@ export default function RecordsParamedic() {
           String(item.id ?? item.record_id ?? Math.random())
         }
         renderItem={({ item: log }) => (
-          <View style={localStyles.card}>
+          <View style={styles.recordsCard}>
             <Image
               source={require('../assets/images/MissingImage.jpg')}
-              style={localStyles.cardImage}
+              style={styles.recordsCardImage}
             />
-            <View style={localStyles.cardContent}>
-              <Text style={localStyles.cardDate}>{log.logDate ?? log.date ?? ''}</Text>
-              <Text style={localStyles.cardTitle}>
+            <View style={styles.recordsCardContent}>
+              <Text style={styles.recordsCardDate}>{log.logDate ?? log.date ?? ''}</Text>
+              <Text style={styles.recordsCardTitle}>
                 {log.description ?? log.summary ?? ''}
               </Text>
-              <Text style={localStyles.cardSubtitle}>
+              <Text style={styles.recordsCardSubtitle}>
                 {(log.ingressTime ?? '') +
                   (log.exitTime ? ` - ${log.exitTime}` : '')}
               </Text>
-
-              <TouchableOpacity
-                style={[localStyles.moreButton, styles.redButton]}
-                onPress={() => console.log('Ver más', log)}
-              >
-                <Text style={styles.redButtonText}>Ver más</Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -185,109 +219,3 @@ export default function RecordsParamedic() {
     </View>
   );
 }
-
-const localStyles = StyleSheet.create({
-  filterContainer: {
-    paddingHorizontal: 16,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-
-  box: {
-    flex: 1,
-    marginHorizontal: 4,
-  },
-
-  dateInput: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-
-  dateText: {
-    fontSize: 14,
-  },
-
-  filterButton: {
-    width: '100%',
-    height: 46,
-    borderRadius: 30,
-    marginTop: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  modalContainer: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 12,
-  },
-
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    marginVertical: 8,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    width: '100%',
-  },
-
-  cardImage: {
-    width: 86,
-    height: 86,
-    borderRadius: 10,
-    backgroundColor: '#ececec',
-    marginRight: 12,
-  },
-
-  cardContent: {
-    flex: 1,
-  },
-
-  cardDate: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-  },
-
-  cardSubtitle: {
-    color: '#666',
-    marginBottom: 8,
-  },
-
-  moreButton: {
-    backgroundColor: '#ff7a00',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-});
