@@ -1,7 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, Flatlist } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View, FlatList } from 'react-native';
 
 import NavigationBar from '../components/ui/NavigationBar';
 import styles from '../Styles/styles';
@@ -9,12 +8,11 @@ import styles from '../Styles/styles';
 import { getPendingArrivalAlerts, acceptArrivalAlert } from '@/services/arrivalAlertService';
 
 export default function AdminNotifications() {
-  const router = useRouter();
 
   const [arrivalRequestMenu, setArrivalRequestMenu] = useState(true);
   const [emergencyAlertMenu, setEmergencyAlertMenu] = useState(false);
 
-  const [arrivalAlerts, setArrivalAlerts] = useState([]);
+  const [arrivalAlerts, setArrivalAlerts] = useState<any[]>([]);
 
   const toggleArrivalRequest = () => setArrivalRequestMenu(!arrivalRequestMenu);
   const toggleEmergencyAlert = () => setEmergencyAlertMenu(!emergencyAlertMenu);
@@ -32,7 +30,20 @@ export default function AdminNotifications() {
     loadArrivalAlerts();
   }, []);
 
-  const handleAccept = async (id) => {
+  const testDataEmergencia = [
+    { id: 1, nombre: 'Emergencia: Caída', message: 'Usuario ha reportado una caída.' },
+    { id: 2, nombre: 'Emergencia: Dolor', message: 'Usuario reporta dolor en el pecho.' },
+  ];
+
+  const handleSubmitEmergencia = async (id: number) => {
+    try {
+      console.log('Accepted emergencia with id:', id);
+    } catch (err) {
+      console.log('Error accepting emergencia:', err);
+    }
+  };
+
+  const handleAccept = async (id: number) => {
     try {
       await acceptArrivalAlert(id);
       setArrivalAlerts((prev) => prev.filter((a) => a.id !== id));
@@ -42,55 +53,50 @@ export default function AdminNotifications() {
   };
 
   return (
-    <View style={styles.Background}>
-      <Text style={[styles.HeaderText, { marginTop: 100 }]}>
-        Notificaciones
-      </Text>
-
-      <View style={styles.Separator}></View>
-
-      <ScrollView style={styles.scrollView}>
-        {/* ARRIVAL REQUESTS SECTION */}
-        <TouchableOpacity style={styles.menuButton} onPress={toggleArrivalRequest}>
-          <Text style={styles.menuButtonText}>Llegadas</Text>
+     <View style={styles.Background}>
+      <View>
+        <TouchableOpacity onPress={toggleArrivalRequest} style={styles.dropMenuContainer}>
+          <Text style={[styles.HeaderText, { marginTop: 0 }]}>Llegada</Text>
           <MaterialCommunityIcons
-            name={arrivalRequestMenu ? "chevron-up" : "chevron-down"}
-            size={24}
-            color="white"
+            name= {arrivalRequestMenu ? "menu-down" : "menu-right"}
+            size={40}
+            color="black"
+            style={styles.dropDownSimbol}
           />
         </TouchableOpacity>
-
-        {arrivalRequestMenu && (
-          <View style={{ marginTop: 10 }}>
-            {arrivalAlerts.length === 0 ? (
-              <Text style={styles.noDataText}>No hay solicitudes pendientes</Text>
-            ) : (
-              arrivalAlerts.map((alert) => (
-                <View key={alert.id} style={styles.alertItem}>
-                  <Text style={styles.registerTitle}>{alert.name}</Text>
-                  <Text style={styles.registerText}>
-                    Llegó a las {alert.arrivalTime}
-                  </Text>
-
-                  <TouchableOpacity
-                    style={styles.redButtonAlert}
-                    onPress={() => handleAccept(alert.id)}
-                  >
-                    <Text style={styles.redButtonText}>Aceptar</Text>
-                  </TouchableOpacity>
-                </View>
-              ))
-            )}
-          </View>
-        )}
-
-        {/* EMERGENCY ALERTS SECTION */}
-        <TouchableOpacity style={styles.menuButton} onPress={toggleEmergencyAlert}>
-          <Text style={styles.menuButtonText}>Emergencias</Text>
+        <View style= {[styles.Separator]}></View>
+        <View>
+          {arrivalRequestMenu && (
+            <>
+              <FlatList
+                data={arrivalAlerts}
+                style={styles.scrollViewStyle}
+                contentContainerStyle={{ paddingBottom: 10 }}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={({ item: alert }) => (
+                  <View key={alert.id} style={styles.alertItem}>
+                    <View style={styles.alertTextContainer}>
+                      <Text style={styles.alertText}>{alert.name}</Text>
+                      <Text style={styles.alertTextSecondary}> Ha llegado al bosque a las {alert.arrivalTime}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => handleAccept(alert.id)} style={styles.redButtonAlert}>
+                      <Text style={styles.redButtonText}>Enterado</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </>
+          )}
+        </View>
+      </View>
+      <View>
+        <TouchableOpacity onPress={toggleEmergencyAlert} style={[styles.dropMenuContainer, { marginTop: 20 }]}>
+          <Text style={[styles.HeaderText, { marginTop: 0 }]}>Ayuda</Text>
           <MaterialCommunityIcons
-            name={emergencyAlertMenu ? "chevron-up" : "chevron-down"}
-            size={24}
-            color="white"
+            name= {emergencyAlertMenu ? "menu-down" : "menu-right"}
+            size={40}
+            color="black"
+            style={styles.dropDownSimbol}
           />
         </TouchableOpacity>
         <View style= {[styles.Separator]}></View>
@@ -108,7 +114,7 @@ export default function AdminNotifications() {
                       <Text style={styles.alertText}>{alert.nombre}</Text>
                       <Text style={styles.alertTextSecondary}>{alert.message}</Text>
                     </View>
-                    <TouchableOpacity onPress={handleSubmitEmergencia} style={styles.redButtonAlert}>
+                    <TouchableOpacity onPress={() => handleSubmitEmergencia(alert.id)} style={styles.redButtonAlert}>
                       <Text style={styles.redButtonText}>Aceptar</Text>
                     </TouchableOpacity>
                   </View>

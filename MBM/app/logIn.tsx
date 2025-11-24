@@ -5,7 +5,6 @@ import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler'
 import NavigationBar from '../components/ui/NavigationBar';
 import { useAuthController } from '../Controlador/Authenticate';
 import styles from '../Styles/styles';
-import { loadScreen } from '@/Controlador/loadScreen';
 import { useRouter } from 'expo-router';
 
 export default function LogIn() {
@@ -19,25 +18,6 @@ export default function LogIn() {
   const handleSubmit = () => {
     login(email, password);
   };
-
-  useEffect(() => {
-      let mounted = true;
-  
-      const run = async () => {
-        try {
-          await loadScreen(router, 2000);
-        } catch (err) {
-          console.error('Error in loadScreen:', err);
-          //if (mounted) router.replace('/mapView');
-        }
-      };
-  
-      run();
-  
-      return () => {
-        mounted = false;
-      };
-    }, [router]);
 
   return (
     <GestureHandlerRootView>

@@ -13,6 +13,8 @@ export function getCurrentTimeString() {
 
 export function clockIn(setArrivalHour: (value: string) => void) {
   setArrivalHour(getCurrentTimeString());
+
+  
 }
 
 export function clockOut(setDepartureHour: (value: string) => void) {

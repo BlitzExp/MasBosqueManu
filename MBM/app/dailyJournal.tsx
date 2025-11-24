@@ -1,4 +1,5 @@
 import { clockIn, clockOut, submitLog } from '@/Controlador/createLogController';
+import { sendArrivalAlert } from '@/Controlador/arrivalAlert';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -75,7 +76,7 @@ export default function DailyJournal() {
           )}
         </View>
 
-        <TouchableOpacity onPress={() => clockIn(setArrivalHour)} style={styles.redButton}>
+        <TouchableOpacity onPress={() => { clockIn(setArrivalHour); sendArrivalAlert(); }} style={styles.redButton}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <MaterialCommunityIcons
                       name= "bell"

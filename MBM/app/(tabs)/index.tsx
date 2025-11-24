@@ -13,6 +13,7 @@ export default function App() {
     const run = async () => {
       try {
         await loadScreen(router, 2000);
+        
       } catch (err) {
         console.error('Error in loadScreen:', err);
         if (mounted) router.replace('/mapView');
