@@ -13,7 +13,6 @@ export const createArrivalAlert = async (
 ): Promise<ArrivalAlert> => {
   const { userID, name, arrivalTime, exitTime } = alert;
 
-  // Resolve userID: prefer provided value, otherwise use authenticated user
   let resolvedUserID = userID;
   if (!resolvedUserID) {
     const auth = await supabase.auth.getUser();
@@ -60,6 +59,67 @@ export const acceptArrivalAlert = async (id: number): Promise<ArrivalAlert> => {
   if (error) throw error;
   if (!data) throw new Error("No data returned from acceptArrivalAlert");
   return data;
+};
+
+export type ArrivalAlertChange = {
+  eventType: string;
+  new?: ArrivalAlert;
+  old?: ArrivalAlert;
+};
+
+export const subscribeToPendingArrivalAlerts = (
+  callback: (change: ArrivalAlertChange) => void
+): (() => void) => {
+  const anySupabase = supabase as any;
+
+  if (typeof anySupabase.channel === "function") {
+    const channel = anySupabase
+      .channel("public:ArrivalAlerts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ArrivalAlerts", filter: "accepted=eq.false" },
+        (payload: any) => {
+          const evt = payload.event || payload.type || payload.eventType || "UNKNOWN";
+          const newRecord = payload.new as ArrivalAlert | undefined;
+          const oldRecord = payload.old as ArrivalAlert | undefined;
+          callback({ eventType: evt, new: newRecord, old: oldRecord });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      try {
+        if (typeof anySupabase.removeChannel === "function") anySupabase.removeChannel(channel);
+        else if (channel && typeof channel.unsubscribe === "function") channel.unsubscribe();
+      } catch (e) {}
+    };
+  }
+
+  if (typeof anySupabase.from === "function") {
+    const sub = anySupabase
+      .from("ArrivalAlerts")
+      .on("INSERT", (payload: any) => {
+        if (payload.record?.accepted === false) callback({ eventType: "INSERT", new: payload.record });
+      })
+      .on("UPDATE", (payload: any) => {
+        const rec = payload.record || payload.new || payload;
+        if (rec) callback({ eventType: "UPDATE", new: rec, old: payload.old_record });
+      })
+      .on("DELETE", (payload: any) => {
+        if (payload.old_record?.accepted === false) callback({ eventType: "DELETE", old: payload.old_record });
+      })
+      .subscribe();
+
+    return () => {
+      try {
+        if (typeof anySupabase.removeSubscription === "function") anySupabase.removeSubscription(sub);
+        else if (sub && typeof sub.unsubscribe === "function") sub.unsubscribe();
+      } catch (e) {}
+    };
+  }
+
+  callback({ eventType: "ERROR", new: undefined, old: undefined });
+  return () => {};
 };
 
 

@@ -28,7 +28,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
             .single();
 
         if (error) {
-            console.warn('Supabase profile query failed, using local DB as fallback', error);
+            console.warn('Supabase profile query failed', error);
             const local = await getLocalUser();
             if (!local) return null;
             return {
@@ -51,7 +51,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
                 profile.role ?? ''
             );
         } catch (saveErr) {
-            console.warn('Failed to save profile to local DB', saveErr);
+            console.warn('Failed to save profile', saveErr);
         }
 
         return {
@@ -64,7 +64,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
             startSessionTime: profile.startSessionTime ?? null,
         } as Profile;
     } catch (e) {
-        console.warn('fetchCurrentUserProfile remote error, trying local DB', e);
+        console.warn('fetchCurrentUserProfile remote error', e);
         try {
             const local = await getLocalUser();
             if (!local) return null;
@@ -88,13 +88,13 @@ export async function logoutCurrentUser(): Promise<void> {
         const { error } = await supabase.auth.signOut();
         if (error) console.warn('supabase.signOut returned error', error);
     } catch (e) {
-        console.warn('supabase.signOut failed (network?), proceeding to clear local data', e);
+        console.warn('supabase.signOut failed', e);
     }
 
     try {
         await clearUserData();
     } catch (e) {
-        console.error('Failed to clear local user data during logout', e);
+        console.error('Failed to logout', e);
         throw e;
     }
 }

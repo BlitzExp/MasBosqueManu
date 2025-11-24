@@ -1,13 +1,17 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Text, TouchableOpacity, View, FlatList } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 
 import NavigationBar from '../components/ui/NavigationBar';
 import styles from '../Styles/styles';
 
-import { getPendingArrivalAlerts, acceptArrivalAlert } from '@/services/arrivalAlertService';
+import { acceptArrivalAlert, getPendingArrivalAlerts } from '@/services/arrivalAlertService';
 
 export default function AdminNotifications() {
+
+  const params = useLocalSearchParams();
+  const openParam = params?.open as string | undefined;
 
   const [arrivalRequestMenu, setArrivalRequestMenu] = useState(true);
   const [emergencyAlertMenu, setEmergencyAlertMenu] = useState(false);
@@ -28,6 +32,14 @@ export default function AdminNotifications() {
 
   useEffect(() => {
     loadArrivalAlerts();
+    // If route contains ?open=arrival or ?open=emergency, open that section
+    if (openParam === 'arrival') {
+      setArrivalRequestMenu(true);
+      setEmergencyAlertMenu(false);
+    } else if (openParam === 'emergency') {
+      setEmergencyAlertMenu(true);
+      setArrivalRequestMenu(false);
+    }
   }, []);
 
   const testDataEmergencia = [

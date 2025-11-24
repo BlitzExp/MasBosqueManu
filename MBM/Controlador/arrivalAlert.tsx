@@ -30,7 +30,6 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
         arrivalTime = arrivalTime ?? getTimeInTimeZone("America/Mexico_City");
         exitTime = typeof exitTime !== "undefined" ? exitTime : null;
 
-        // Ensure we have a name (try local DB) and let the service resolve userID if not provided
         if (!name) {
             name = (await getUserName()) ?? "Usuario sin nombre";
         }

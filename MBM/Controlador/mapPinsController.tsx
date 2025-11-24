@@ -19,7 +19,7 @@ export async function fetchMapPins(): Promise<MapPin[]> {
 
         return mapPins;
     } catch (error) {
-        console.error('Error fetching map pins from remote, falling back to local DB:', error);
+        console.error('Error fetching map pins from remote:', error);
         try {
             await initDatabase();
             const cached = await getPinsLocations();
