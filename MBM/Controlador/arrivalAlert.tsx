@@ -1,4 +1,9 @@
-import { createArrivalAlert } from "@/services/arrivalAlertService";
+import {
+    createArrivalAlert,
+    acceptArrivalAlert as svcAcceptArrivalAlert,
+    getPendingArrivalAlerts as svcGetPendingArrivalAlerts,
+    subscribeToPendingArrivalAlerts as svcSubscribeToPendingArrivalAlerts,
+} from "@/services/arrivalAlertService";
 import { getUserName } from "@/services/localdatabase";
 
 import { Alert } from "react-native";
@@ -52,3 +57,17 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
         throw error;
     }
 }
+
+export const getPendingArrivalAlerts = async () => {
+    return svcGetPendingArrivalAlerts();
+};
+
+export const acceptArrivalAlert = async (id: number) => {
+    return svcAcceptArrivalAlert(id);
+};
+
+export const subscribeToPendingArrivalAlerts = async (
+    callback: (change: any) => void
+): Promise<() => void> => {
+    return svcSubscribeToPendingArrivalAlerts(callback as any);
+};

@@ -6,7 +6,8 @@ import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import NavigationBar from '../components/ui/NavigationBar';
 import styles from '../Styles/styles';
 
-import { acceptArrivalAlert, getPendingArrivalAlerts } from '@/services/arrivalAlertService';
+import { acceptArrivalAlert, getPendingArrivalAlerts } from '@/Controlador/arrivalAlert';
+import { acceptEmergencyAlert, getPendingEmergencies, obtainEmergencyAlertName, getTimeSinceAlert } from '@/Controlador/emergencyAlert';
 
 export default function AdminNotifications() {
 
@@ -17,6 +18,7 @@ export default function AdminNotifications() {
   const [emergencyAlertMenu, setEmergencyAlertMenu] = useState(false);
 
   const [arrivalAlerts, setArrivalAlerts] = useState<any[]>([]);
+  const [emergencyAlerts, setEmergencyAlerts] = useState<any[]>([]);
 
   const toggleArrivalRequest = () => setArrivalRequestMenu(!arrivalRequestMenu);
   const toggleEmergencyAlert = () => setEmergencyAlertMenu(!emergencyAlertMenu);
@@ -30,37 +32,44 @@ export default function AdminNotifications() {
     }
   };
 
-  useEffect(() => {
-    loadArrivalAlerts();
-    // If route contains ?open=arrival or ?open=emergency, open that section
-    if (openParam === 'arrival') {
-      setArrivalRequestMenu(true);
-      setEmergencyAlertMenu(false);
-    } else if (openParam === 'emergency') {
-      setEmergencyAlertMenu(true);
-      setArrivalRequestMenu(false);
-    }
-  }, []);
-
-  const testDataEmergencia = [
-    { id: 1, nombre: 'Emergencia: Caída', message: 'Usuario ha reportado una caída.' },
-    { id: 2, nombre: 'Emergencia: Dolor', message: 'Usuario reporta dolor en el pecho.' },
-  ];
-
-  const handleSubmitEmergencia = async (id: number) => {
+  const loadEmergencyAlerts = async () => {
     try {
-      console.log('Accepted emergencia with id:', id);
+      const alerts = await getPendingEmergencies();
+      const alertsWithNames = await Promise.all(
+        alerts.map(async (a: any) => {
+          const displayName = await obtainEmergencyAlertName(a);
+          return { ...a, displayName };
+        })
+      );
+      setEmergencyAlerts(alertsWithNames);
     } catch (err) {
-      console.log('Error accepting emergencia:', err);
+      console.log("Error loading emergency alerts:", err);
     }
   };
 
-  const handleAccept = async (id: number) => {
+  useEffect(() => {
+    loadArrivalAlerts();
+    loadEmergencyAlerts();
+    if (openParam === 'arrival') {
+      setArrivalRequestMenu(true);
+    }
+  }, [openParam]);
+
+  const handleAcceptAlert = async (id: number) => {
     try {
       await acceptArrivalAlert(id);
       setArrivalAlerts((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.log("Error accepting alert:", err);
+    }
+  };
+
+  const handleAcceptEmergency = async (id: number) => {
+    try {
+      await acceptEmergencyAlert(id);
+      setEmergencyAlerts((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.log("Error accepting emergency alert:", err);
     }
   };
 
@@ -89,9 +98,9 @@ export default function AdminNotifications() {
                   <View key={alert.id} style={styles.alertItem}>
                     <View style={styles.alertTextContainer}>
                       <Text style={styles.alertText}>{alert.name}</Text>
-                      <Text style={styles.alertTextSecondary}> Ha llegado al bosque a las {alert.arrivalTime}</Text>
+                      <Text style={styles.alertTextSecondary}> Llego a las {alert.arrivalTime}</Text>
                     </View>
-                    <TouchableOpacity onPress={() => handleAccept(alert.id)} style={styles.redButtonAlert}>
+                    <TouchableOpacity onPress={() => handleAcceptAlert(alert.id)} style={styles.redButtonAlert}>
                       <Text style={styles.redButtonText}>Enterado</Text>
                     </TouchableOpacity>
                   </View>
@@ -116,17 +125,17 @@ export default function AdminNotifications() {
           {emergencyAlertMenu && (
             <>
               <FlatList
-                data={testDataEmergencia}
+                data={emergencyAlerts}
                 style={styles.scrollViewStyle}
                 contentContainerStyle={{ paddingBottom: 10 }}
                 keyExtractor={(item) => String(item.id)}
                 renderItem={({ item: alert }) => (
                   <View key={alert.id} style={styles.alertItem}>
                     <View style={styles.alertTextContainer}>
-                      <Text style={styles.alertText}>{alert.nombre}</Text>
-                      <Text style={styles.alertTextSecondary}>{alert.message}</Text>
+                      <Text style={styles.alertText}>Emergencia en {alert.displayName}</Text>
+                      <Text style={styles.alertTextSecondary}>{getTimeSinceAlert( alert.date, alert.timeAlert )} atrás</Text>
                     </View>
-                    <TouchableOpacity onPress={() => handleSubmitEmergencia(alert.id)} style={styles.redButtonAlert}>
+                    <TouchableOpacity onPress={() => handleAcceptEmergency(alert.id)} style={styles.redButtonAlert}>
                       <Text style={styles.redButtonText}>Aceptar</Text>
                     </TouchableOpacity>
                   </View>

@@ -1,7 +1,13 @@
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
+import {
+  createProfile,
+  getCurrentUser,
+  getProfileById,
+  signIn,
+  signUp
+} from '../services/authenticateService';
 import { getUser, saveUser } from '../services/localdatabase';
-import { supabase } from '../services/supabase';
 
 export function useAuthController() {
   const router = useRouter();
@@ -13,39 +19,28 @@ export function useAuthController() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { user } = (await signIn(email, password)) ?? {};
 
-      if (error) throw error;
-
-      console.log("Logged user:", data.user);
+      console.log('Logged user:', user);
 
       await storeUserData();
-      
-      router.replace("/mapView");
-      return { success: true };
 
+      router.replace('/mapView');
+      return { success: true };
     } catch (err: any) {
-      Alert.alert("Error", err.message);
+      Alert.alert('Error', err.message);
       return { success: false };
     }
   };
 
   const storeUserData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCurrentUser();
       const local = await getUser();
 
       let profile: any = null;
       if (user && user.id) {
-        const { data: profileData, error: profileError } = await supabase
-          .from('Profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        if (!profileError) profile = profileData || null;
+        profile = await getProfileById(user.id).catch(() => null);
       }
 
       const finalId = user?.id ?? local?.userId ?? '';
@@ -80,33 +75,27 @@ const register = async (email: string, password: string, userType: string, nameI
   }
 
   try {
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const signUpData = await signUp(email, password);
+    let user = (signUpData as any)?.user;
 
-    if (signUpError) throw signUpError;
-    let user = signUpData.user;
-    if (!signUpData.session) {
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
+    // If no session was created, try to sign in (user must confirm email first in many setups)
+    if (!((signUpData as any)?.session)) {
+      try {
+        const signInData = await signIn(email, password);
+        user = (signInData as any)?.user;
+      } catch (signInErr: any) {
         Alert.alert(
-          "Registro creado",
-          "Cuenta creada. Confirma tu correo para continuar (profile will be created after confirmation)."
+          'Registro creado',
+          'Cuenta creada. Confirma tu correo para continuar (profile will be created after confirmation).'
         );
-        router.replace("/logIn");
+        router.replace('/logIn');
         return { success: true };
       }
-      user = signInData.user;
     }
 
-    if (!user) throw new Error("No se pudo obtener el usuario tras el registro.");
+    if (!user) throw new Error('No se pudo obtener el usuario tras el registro.');
 
-    const { error: profileError } = await supabase.from("Profiles").insert({
+    await createProfile({
       id: user.id,
       name: nameInput,
       role: userType,
@@ -115,15 +104,12 @@ const register = async (email: string, password: string, userType: string, nameI
       lastVisit: null,
     });
 
-    if (profileError) throw profileError;
-
-    Alert.alert("Registro exitoso", "Cuenta y perfil creados.");
+    Alert.alert('Registro exitoso', 'Cuenta y perfil creados.');
     await storeUserData();
-    router.replace("/mapView");
+    router.replace('/mapView');
     return { success: true };
-
   } catch (err: any) {
-    Alert.alert("Error", err.message);
+    Alert.alert('Error', err.message);
     return { success: false };
   }
 };

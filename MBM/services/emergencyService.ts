@@ -1,7 +1,11 @@
 import { Emergency } from "@/Modelo/Emergency";
+import { ensureAdmin } from "./authorization";
 import { supabase } from "./supabase";
 
 export const getPendingArrivalAlerts = async (): Promise<Emergency[]> => {
+  const isAdmin = await ensureAdmin();
+  if (!isAdmin) throw new Error("Not authorized");
+
   const { data, error } = await supabase
     .from("Emergencies")
     .select("*")
@@ -30,9 +34,12 @@ export type EmergencyChange = {
 };
 
 
-export const subscribeToPendingArrivalAlerts = (
+export const subscribeToPendingArrivalAlerts = async (
   callback: (change: EmergencyChange) => void
-): (() => void) => {
+): Promise<() => void> => {
+  const isAdmin = await ensureAdmin();
+  if (!isAdmin) return () => {};
+
   const anySupabase = supabase as any;
 
   if (typeof anySupabase.channel === "function") {
@@ -86,3 +93,17 @@ export const subscribeToPendingArrivalAlerts = (
   callback({ eventType: "ERROR", new: undefined, old: undefined });
   return () => {};
 };
+
+export const mapEmergencyPointName = async (pointID: number): Promise<string> => {
+
+    const { data, error } = await supabase
+      .from("emergencyLocations")
+      .select("*")
+      .eq("id", pointID)
+      .single();
+      if (error) {
+        console.error("Error fetching emergency location:", error);
+        return "Ubicación desconocida";
+      }
+      return data?.name ?? "Ubicación desconocida";
+}

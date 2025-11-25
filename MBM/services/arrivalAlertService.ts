@@ -1,4 +1,5 @@
 import { ArrivalAlert } from "@/Modelo/ArrivalAlerts";
+import { ensureAdmin } from "./authorization";
 import { supabase } from "./supabase";
 
 type CreateArrivalInput = {
@@ -38,6 +39,9 @@ export const createArrivalAlert = async (
 };
 
 export const getPendingArrivalAlerts = async (): Promise<ArrivalAlert[]> => {
+  const isAdmin = await ensureAdmin();
+  if (!isAdmin) throw new Error("Not authorized");
+
   const { data, error } = await supabase
     .from("ArrivalAlerts")
     .select("*")
@@ -67,9 +71,14 @@ export type ArrivalAlertChange = {
   old?: ArrivalAlert;
 };
 
-export const subscribeToPendingArrivalAlerts = (
+export const subscribeToPendingArrivalAlerts = async (
   callback: (change: ArrivalAlertChange) => void
-): (() => void) => {
+): Promise<() => void> => {
+  const isAdmin = await ensureAdmin();
+  if (!isAdmin) {
+    return () => {};
+  }
+
   const anySupabase = supabase as any;
 
   if (typeof anySupabase.channel === "function") {
