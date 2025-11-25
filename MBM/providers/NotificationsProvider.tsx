@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { PropsWithChildren, useEffect } from "react";
 import { subscribeToPendingArrivalAlerts as subscribeArrivals } from "../Controlador/arrivalAlert";
 import { subscribeToPendingEmergencies as subscribeEmergencies } from "../Controlador/emergencyAlert";
+import { ensureAdmin } from "../services/authorization";
 import { scheduleLocalNotification, subscribeNotificationEvents } from "../services/notifications";
 
 Notifications.setNotificationHandler({
@@ -48,6 +49,13 @@ export default function NotificationsProvider({ children }: PropsWithChildren) {
             }
           },
         });
+
+        // Only subscribe to realtime events if the current user is admin.
+        const isAdmin = await ensureAdmin();
+        if (!isAdmin) {
+          console.log("User is not admin — skipping emergency/arrival subscriptions");
+          return;
+        }
 
         unsubEmergencies = await subscribeEmergencies((change) => {
           try {

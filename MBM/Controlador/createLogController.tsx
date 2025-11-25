@@ -1,6 +1,7 @@
 import type { UserLog } from '@/Modelo/UserLog';
 import { getUserName } from '@/services/localdatabase';
 import { createUserLog } from '@/services/logService';
+import {increseProfileVisits, updateLastVisit} from '@/services/profileVisitsService';
 import { supabase } from '@/services/supabase';
 import { Alert } from 'react-native';
 
@@ -11,10 +12,11 @@ export function getCurrentTimeString() {
   return `${hours}:${minutes}`;
 }
 
-export function clockIn(setArrivalHour: (value: string) => void) {
+export async function clockIn(setArrivalHour: (value: string) => void) {
+  console.log("Clocking in");
   setArrivalHour(getCurrentTimeString());
-
-  
+  await increseProfileVisits();
+  await updateLastVisit();
 }
 
 export function clockOut(setDepartureHour: (value: string) => void) {
@@ -50,6 +52,7 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
     };
 
     await createUserLog(log);
+    
 
     Alert.alert('Éxito', 'Bitácora enviada.');
     onSuccess?.();
@@ -58,6 +61,7 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
     Alert.alert('Error', err?.message ?? String(err));
   }
 }
+
 
 export default {
   getCurrentTimeString,

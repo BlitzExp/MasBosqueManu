@@ -7,6 +7,8 @@ export const getCurrentUserRole = async (): Promise<string | null> => {
     if (!userId) return null;
 
     const { data, error } = await supabase.from('Profiles').select('role').eq('id', userId).single();
+
+    console.log('User role data:', data, 'Error:', error);
     if (error) return null;
     return data?.role ?? null;
   } catch (e) {

@@ -6,11 +6,19 @@ import {
 } from "@/services/emergencyService";
 
 export const getPendingEmergencies = async () => {
-    return svcGetPendingEmergencies();
+    try {
+        return await svcGetPendingEmergencies();
+    } catch (error) {
+        return [];
+    }
 };
 
 export const acceptEmergencyAlert = async (id: number) => {
-    return svcAcceptEmergencyAlert(id);
+    try {
+        return await svcAcceptEmergencyAlert(id);
+    } catch (error) {
+        return null;
+    }
 };
 
 export const subscribeToPendingEmergencies = async (
@@ -20,8 +28,15 @@ export const subscribeToPendingEmergencies = async (
 };
 
 export const obtainEmergencyAlertName = async (alert: any): Promise<string> => {
-    return await svcMapEmergencyPointName(Number(alert.localizationID));
-}
+    try {
+        if (alert.customName && alert.customName.trim().length > 0) {
+            return alert.customName;
+        }
+        return await svcMapEmergencyPointName(Number(alert.localizationID));
+    } catch (error) {
+        return "Unknown Location";
+    }
+};
 
 export const getTimeSinceAlert = (alertDate: string, timeAlert: string): string => {
     const parseDate = (input: string | Date): Date => {

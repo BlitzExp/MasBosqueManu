@@ -59,13 +59,20 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
 }
 
 export const getPendingArrivalAlerts = async () => {
-    return svcGetPendingArrivalAlerts();
+    try {
+        return await svcGetPendingArrivalAlerts();
+    } catch (error) {
+        return [];
+    }
 };
 
 export const acceptArrivalAlert = async (id: number) => {
-    return svcAcceptArrivalAlert(id);
+    try {
+        return await svcAcceptArrivalAlert(id);
+    } catch (error) {
+        return null;
+    }
 };
-
 export const subscribeToPendingArrivalAlerts = async (
     callback: (change: any) => void
 ): Promise<() => void> => {
