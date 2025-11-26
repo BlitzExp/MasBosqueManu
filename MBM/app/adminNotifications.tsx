@@ -7,7 +7,7 @@ import NavigationBar from '../components/ui/NavigationBar';
 import styles from '../Styles/styles';
 
 import { acceptArrivalAlert, getPendingArrivalAlerts } from '@/Controlador/arrivalAlert';
-import { acceptEmergencyAlert, getPendingEmergencies, obtainEmergencyAlertName, getTimeSinceAlert } from '@/Controlador/emergencyAlert';
+import { acceptEmergencyAlert, getPendingEmergencies, getTimeSinceAlert, obtainEmergencyAlertName } from '@/Controlador/emergencyAlert';
 
 export default function AdminNotifications() {
 
@@ -52,6 +52,10 @@ export default function AdminNotifications() {
     loadEmergencyAlerts();
     if (openParam === 'arrival') {
       setArrivalRequestMenu(true);
+      setEmergencyAlertMenu(false);
+    } else if (openParam === 'emergency') {
+      setEmergencyAlertMenu(true);
+      setArrivalRequestMenu(false);
     }
   }, [openParam]);
 

@@ -38,7 +38,9 @@ export const subscribeToPendingArrivalAlerts = async (
   callback: (change: EmergencyChange) => void
 ): Promise<() => void> => {
   const isAdmin = await ensureAdmin();
+  console.log("User is admin:", isAdmin);
   if (!isAdmin) return () => {};
+  console.log("Subscribing to emergency alerts changes");
 
   const anySupabase = supabase as any;
 

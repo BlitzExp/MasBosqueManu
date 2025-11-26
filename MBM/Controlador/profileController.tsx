@@ -1,6 +1,8 @@
 import { Profile } from '../Modelo/Profile';
-import { supabase } from '../services/supabase';
+import { ensureAdmin } from '../services/authorization';
 import { clearUserData, getUser as getLocalUser, saveUser as saveLocalUser } from '../services/localdatabase';
+import { cleanupRealtimeSubscriptions } from '../services/realtimeSubscriptions';
+import { supabase } from '../services/supabase';
 
 export async function fetchCurrentUserProfile(): Promise<Profile | null> {
 
@@ -85,6 +87,18 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
 
 export async function logoutCurrentUser(): Promise<void> {
     try {
+        try {
+            const isAdmin = await ensureAdmin();
+            if (isAdmin) {
+                try {
+                    cleanupRealtimeSubscriptions();
+                } catch (e) {
+                    console.warn('Failed to cleanup realtime subscriptions before logout', e);
+                }
+            }
+        } catch (e) {
+        }
+
         const { error } = await supabase.auth.signOut();
         if (error) console.warn('supabase.signOut returned error', error);
     } catch (e) {
