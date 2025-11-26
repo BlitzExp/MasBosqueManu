@@ -2,12 +2,23 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import * as Notifications from 'expo-notifications';
 
 import NavigationBar from '../components/ui/NavigationBar';
 import { fetchMapPins } from '../Controlador/mapPinsController';
 import { MapPin } from '../Modelo/MapPins';
 
 import { useEffect, useState } from 'react';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: false,
+    shouldShowList: false
+  }),
+});
 
 export default function MapScreen() {
   const router = useRouter();
@@ -21,6 +32,12 @@ export default function MapScreen() {
         if (status !== 'granted') {
           Alert.alert('Permission denied', 'Permission to access location was denied');
           return;
+        }
+
+        const { status: notificationStatus } = await Notifications.requestPermissionsAsync();
+
+        if (notificationStatus !== 'granted'){
+          Alert.alert('Permission Denied', 'Permision to send notifications was denied');
         }
 
         let location = await Location.getCurrentPositionAsync({});

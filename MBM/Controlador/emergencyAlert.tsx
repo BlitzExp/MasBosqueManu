@@ -38,6 +38,7 @@ export const obtainEmergencyAlertName = async (alert: any): Promise<string> => {
     }
 };
 
+
 export const getTimeSinceAlert = (alertDate: string, timeAlert: string): string => {
     const parseDate = (input: string | Date): Date => {
         if (input instanceof Date) return input;
