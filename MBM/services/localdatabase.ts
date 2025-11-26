@@ -30,6 +30,20 @@ export const initDatabase = async () => {
       userName TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS pending_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      userID TEXT NOT NULL,
+      name TEXT NOT NULL,
+      logDate TEXT NOT NULL,
+      ingressTime TEXT,
+      exitTime TEXT,
+      description TEXT,
+      image TEXT,
+      created_at TEXT NOT NULL,
+      synced INTEGER DEFAULT 0,
+      server_id TEXT
+    );
+
     CREATE TABLE IF NOT EXISTS emergencies (
       emergency_id INTEGER PRIMARY KEY AUTOINCREMENT,
       timeAlert TEXT,
@@ -232,6 +246,101 @@ export const getPinsLocations = async (): Promise<MapPin[]> => {
     }));
   } catch (error) {
     console.error("getPinsLocations error:", error);
+    return [];
+  }
+};
+
+// ============== LOCAL LOG STORAGE FUNCTIONS ==============
+
+export const savePendingLog = async (log: any): Promise<number> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
+    const now = new Date().toISOString();
+    
+    db.execSync(`
+      INSERT INTO pending_logs (userID, name, logDate, ingressTime, exitTime, description, image, created_at, synced)
+      VALUES (
+        '${escape(log.userID)}',
+        '${escape(log.name)}',
+        '${escape(log.logDate)}',
+        ${log.ingressTime ? `'${escape(log.ingressTime)}'` : 'NULL'},
+        ${log.exitTime ? `'${escape(log.exitTime)}'` : 'NULL'},
+        ${log.description ? `'${escape(log.description)}'` : 'NULL'},
+        ${log.image ? `'${escape(log.image)}'` : 'NULL'},
+        '${escape(now)}',
+        0
+      );
+    `);
+    
+    const result = db.getFirstSync<{ id: number }>(
+      "SELECT id FROM pending_logs ORDER BY id DESC LIMIT 1"
+    );
+    
+    return result?.id ?? 0;
+  } catch (error) {
+    console.error("savePendingLog error:", error);
+    throw error;
+  }
+};
+
+export const getPendingLogs = async (): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      "SELECT * FROM pending_logs WHERE synced = 0 ORDER BY created_at ASC"
+    );
+    return results || [];
+  } catch (error) {
+    console.error("getPendingLogs error:", error);
+    return [];
+  }
+};
+
+export const markLogAsSynced = async (logId: number, serverId: string): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: string) => s.replace(/'/g, "''");
+    db.execSync(`
+      UPDATE pending_logs
+      SET synced = 1, server_id = '${escape(serverId)}'
+      WHERE id = ${logId};
+    `);
+  } catch (error) {
+    console.error("markLogAsSynced error:", error);
+    throw error;
+  }
+};
+
+export const deletePendingLog = async (logId: number): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    db.execSync(`DELETE FROM pending_logs WHERE id = ${logId};`);
+  } catch (error) {
+    console.error("deletePendingLog error:", error);
+    throw error;
+  }
+};
+
+export const getLocalUserLogs = async (userID: string): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      `SELECT * FROM pending_logs WHERE userID = '${userID.replace(/'/g, "''")}' ORDER BY logDate DESC`
+    );
+    return results || [];
+  } catch (error) {
+    console.error("getLocalUserLogs error:", error);
     return [];
   }
 };
