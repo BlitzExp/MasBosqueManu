@@ -185,8 +185,13 @@ export default function RecordsParamedic() {
         renderItem={({ item: log }) => (
           <View style={styles.recordsCard}>
             <Image
-              source={require('../assets/images/MissingImage.jpg')}
+              source={
+                log.image
+                  ? { uri: log.image }
+                  : require('../assets/images/MissingImage.jpg')
+              }
               style={styles.recordsCardImage}
+              resizeMode="cover"
             />
             <View style={styles.recordsCardContent}>
               <Text style={styles.recordsCardDate}>{log.logDate ?? log.date ?? ''}</Text>

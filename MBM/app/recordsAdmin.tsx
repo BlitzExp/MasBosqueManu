@@ -201,16 +201,13 @@ export default function RecordsAdmin() {
           String(item.id ?? item.record_id ?? Math.random())
         }
         renderItem={({ item: log }) => (
-
           <View style={[styles.recordsCard, {flexDirection: 'column'}]}>
             <Text style={styles.recordsCardUserName}>{log.name}</Text>
             <View style={styles.recordsCard}>
               <Image
                 source={
                   log.image
-                    ? (log.image.startsWith('http') || log.image.startsWith('data:')
-                        ? { uri: log.image }
-                        : { uri: log.image })
+                    ? { uri: log.image }
                     : require('../assets/images/MissingImage.jpg')
                 }
                 style={styles.recordsCardImage}
