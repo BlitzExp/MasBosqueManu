@@ -1,15 +1,15 @@
 import { MapPin } from '@/Modelo/MapPins';
-import { getAllMapPins } from '@/services/pinsService';
 import {
-    initDatabase,
     addPinsLocations,
     getPinsLocations,
+    initDatabase,
 } from '@/services/localdatabase';
+import { getAllMapPinsResilient } from '@/services/resilientPinsService';
 
 export async function fetchMapPins(): Promise<MapPin[]> {
     try {
         await initDatabase();
-        const mapPins = await getAllMapPins();
+        const mapPins = await getAllMapPinsResilient();
 
         try {
             await addPinsLocations(mapPins);

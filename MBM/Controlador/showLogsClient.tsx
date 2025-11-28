@@ -1,5 +1,6 @@
 import { UserLog } from '@/Modelo/UserLog';
-import { getUserLogs } from '@/services/logService';
+import { getUserLogsResilient, isConnected } from '@/services/resilientLogService';
+
 import { supabase } from '@/services/supabase';
 import { router } from 'expo-router';
 
@@ -17,12 +18,18 @@ export function showLogsController() {
     };
 
     const fetchLogs = async (): Promise<UserLog[]> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            router.replace('/logIn');
-            return [];
+        if (!await isConnected()) {
+            
+        } else{
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                //logout
+                router.replace('/logIn');
+                return [];
+            }
+            return await getUserLogsResilient(user.id);
         }
-        return await getUserLogs(user.id);
+        return [];
     };
 
     const filterLogsBy = async (fromDate: string, toDate: string): Promise<UserLog[]> => {

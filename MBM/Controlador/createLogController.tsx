@@ -1,7 +1,7 @@
 import type { UserLog } from '@/Modelo/UserLog';
 import { getUserName } from '@/services/localdatabase';
-import { createUserLog } from '@/services/logService';
-import {increseProfileVisits, updateLastVisit} from '@/services/profileVisitsService';
+import { increseProfileVisits, updateLastVisit } from '@/services/profileVisitsService';
+import { createUserLogResilient } from '@/services/resilientLogService';
 import { supabase } from '@/services/supabase';
 import { Alert } from 'react-native';
 
@@ -51,7 +51,7 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
       image: null,
     };
 
-    await createUserLog(log);
+    await createUserLogResilient(log);
     
 
     Alert.alert('Éxito', 'Bitácora enviada.');

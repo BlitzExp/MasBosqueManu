@@ -19,6 +19,18 @@ export const initDatabase = async () => {
       startSessionTime TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS profiles (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT,
+      email TEXT,
+      phone TEXT,
+      avatar_url TEXT,
+      created_at TEXT,
+      updated_at TEXT,
+      synced INTEGER DEFAULT 0,
+      server_id TEXT
+    );
+
     CREATE TABLE IF NOT EXISTS records (
       record_id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id TEXT,
@@ -39,6 +51,32 @@ export const initDatabase = async () => {
       exitTime TEXT,
       description TEXT,
       image TEXT,
+      created_at TEXT NOT NULL,
+      synced INTEGER DEFAULT 0,
+      server_id TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS pending_emergencies (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      emergency_id INTEGER,
+      timeAlert TEXT,
+      location TEXT,
+      description TEXT,
+      date TEXT,
+      received INTEGER DEFAULT 0,
+      created_at TEXT NOT NULL,
+      synced INTEGER DEFAULT 0,
+      server_id TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS pending_arrival_alerts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      arrival_id INTEGER,
+      userID TEXT,
+      name TEXT,
+      arrivalTime TEXT,
+      exitTime TEXT,
+      accepted INTEGER DEFAULT 0,
       created_at TEXT NOT NULL,
       synced INTEGER DEFAULT 0,
       server_id TEXT
@@ -342,5 +380,214 @@ export const getLocalUserLogs = async (userID: string): Promise<any[]> => {
   } catch (error) {
     console.error("getLocalUserLogs error:", error);
     return [];
+  }
+};
+
+// ============== PROFILE STORAGE FUNCTIONS ==============
+
+export const saveProfileLocally = async (profile: any): Promise<number> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
+    const now = new Date().toISOString();
+    
+    db.execSync(`
+      INSERT OR REPLACE INTO profiles (id, user_id, email, phone, avatar_url, created_at, updated_at, synced)
+      VALUES (
+        '${escape(profile.id || profile.userId)}',
+        ${profile.userId ? `'${escape(profile.userId)}'` : 'NULL'},
+        ${profile.email ? `'${escape(profile.email)}'` : 'NULL'},
+        ${profile.phone ? `'${escape(profile.phone)}'` : 'NULL'},
+        ${profile.avatar_url ? `'${escape(profile.avatar_url)}'` : 'NULL'},
+        '${escape(profile.created_at || now)}',
+        '${escape(now)}',
+        0
+      );
+    `);
+    
+    return 1;
+  } catch (error) {
+    console.error("saveProfileLocally error:", error);
+    throw error;
+  }
+};
+
+export const getProfileLocally = async (userId: string): Promise<any | null> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const result = db.getFirstSync<any>(
+      `SELECT * FROM profiles WHERE user_id = '${userId.replace(/'/g, "''")}'`
+    );
+    return result || null;
+  } catch (error) {
+    console.error("getProfileLocally error:", error);
+    return null;
+  }
+};
+
+export const getPendingProfiles = async (): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      "SELECT * FROM profiles WHERE synced = 0 ORDER BY updated_at ASC"
+    );
+    return results || [];
+  } catch (error) {
+    console.error("getPendingProfiles error:", error);
+    return [];
+  }
+};
+
+export const markProfileAsSynced = async (profileId: string, serverId: string): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: string) => s.replace(/'/g, "''");
+    db.execSync(`
+      UPDATE profiles
+      SET synced = 1, server_id = '${escape(serverId)}'
+      WHERE id = '${escape(profileId)}';
+    `);
+  } catch (error) {
+    console.error("markProfileAsSynced error:", error);
+    throw error;
+  }
+};
+
+// ============== EMERGENCY STORAGE FUNCTIONS ==============
+
+export const saveEmergencyLocally = async (emergency: any): Promise<number> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
+    const now = new Date().toISOString();
+    
+    db.execSync(`
+      INSERT INTO pending_emergencies (timeAlert, location, description, date, created_at, synced)
+      VALUES (
+        '${escape(emergency.timeAlert)}',
+        ${emergency.location ? `'${escape(emergency.location)}'` : 'NULL'},
+        ${emergency.description ? `'${escape(emergency.description)}'` : 'NULL'},
+        '${escape(emergency.date || now)}',
+        '${escape(now)}',
+        0
+      );
+    `);
+    
+    const result = db.getFirstSync<{ id: number }>(
+      "SELECT id FROM pending_emergencies ORDER BY id DESC LIMIT 1"
+    );
+    
+    return result?.id ?? 0;
+  } catch (error) {
+    console.error("saveEmergencyLocally error:", error);
+    throw error;
+  }
+};
+
+export const getPendingEmergencies = async (): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      "SELECT * FROM pending_emergencies WHERE synced = 0 AND received = 0 ORDER BY created_at ASC"
+    );
+    return results || [];
+  } catch (error) {
+    console.error("getPendingEmergencies error:", error);
+    return [];
+  }
+};
+
+export const markEmergencyAsSynced = async (emergencyId: number, serverId: string): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: string) => s.replace(/'/g, "''");
+    db.execSync(`
+      UPDATE pending_emergencies
+      SET synced = 1, server_id = '${escape(serverId)}'
+      WHERE id = ${emergencyId};
+    `);
+  } catch (error) {
+    console.error("markEmergencyAsSynced error:", error);
+    throw error;
+  }
+};
+
+// ============== ARRIVAL ALERT STORAGE FUNCTIONS ==============
+
+export const saveArrivalAlertLocally = async (alert: any): Promise<number> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
+    const now = new Date().toISOString();
+    
+    db.execSync(`
+      INSERT INTO pending_arrival_alerts (userID, name, arrivalTime, exitTime, accepted, created_at, synced)
+      VALUES (
+        ${alert.userID ? `'${escape(alert.userID)}'` : 'NULL'},
+        '${escape(alert.name)}',
+        '${escape(alert.arrivalTime)}',
+        ${alert.exitTime ? `'${escape(alert.exitTime)}'` : 'NULL'},
+        ${alert.accepted ? 1 : 0},
+        '${escape(now)}',
+        0
+      );
+    `);
+    
+    const result = db.getFirstSync<{ id: number }>(
+      "SELECT id FROM pending_arrival_alerts ORDER BY id DESC LIMIT 1"
+    );
+    
+    return result?.id ?? 0;
+  } catch (error) {
+    console.error("saveArrivalAlertLocally error:", error);
+    throw error;
+  }
+};
+
+export const getPendingArrivalAlerts = async (): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      "SELECT * FROM pending_arrival_alerts WHERE synced = 0 AND accepted = 0 ORDER BY created_at ASC"
+    );
+    return results || [];
+  } catch (error) {
+    console.error("getPendingArrivalAlerts error:", error);
+    return [];
+  }
+};
+
+export const markArrivalAlertAsSynced = async (alertId: number, serverId: string): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: string) => s.replace(/'/g, "''");
+    db.execSync(`
+      UPDATE pending_arrival_alerts
+      SET synced = 1, server_id = '${escape(serverId)}'
+      WHERE id = ${alertId};
+    `);
+  } catch (error) {
+    console.error("markArrivalAlertAsSynced error:", error);
+    throw error;
   }
 };

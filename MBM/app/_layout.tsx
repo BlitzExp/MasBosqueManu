@@ -6,17 +6,27 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import NotificationsProvider from '@/providers/NotificationsProvider';
 
+import { initializeConnectionManager } from '@/services/connectionManager';
+import { syncManager } from '@/services/syncManager';
+import { useEffect } from 'react';
+
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-
-
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  
+  useEffect(() => {
+    console.log('📱 Inicializando sistema de resiliencia...');
+    initializeConnectionManager();
+    syncManager.start();
+    
+    return () => {
+      console.log('🛑 Deteniendo sistema de resiliencia...');
+      syncManager.stop();
+    };
+  }, []);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

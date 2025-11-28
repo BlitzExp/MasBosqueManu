@@ -1,16 +1,14 @@
-import { useRouter } from 'expo-router';
-import { StyleSheet, View, Alert, ActivityIndicator } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 
 import NavigationBar from '../components/ui/NavigationBar';
-import { useStoredDataController } from '../Controlador/storedDataController';
 import { fetchMapPins } from '../Controlador/mapPinsController';
 import { MapPin } from '../Modelo/MapPins';
 
-import { useState, useEffect } from 'react';
-import { notificationAsync } from 'expo-haptics';
+import { useEffect, useState } from 'react';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

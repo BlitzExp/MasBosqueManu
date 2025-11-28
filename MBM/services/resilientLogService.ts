@@ -1,9 +1,22 @@
 import { UserLog } from '@/Modelo/UserLog';
-import * as logService from './logService';
+import NetInfo from "@react-native-community/netinfo";
 import * as localdatabase from './localdatabase';
+import * as logService from './logService';
 import { syncManager } from './syncManager';
 
+
 export type UserLogInsert = Omit<UserLog, 'id'>;
+
+export const isConnected = async () => {
+  const net = await NetInfo.fetch();
+  if (!net.isInternetReachable) {
+    alert("No tienes internet");
+    return false;
+  }
+  return true;
+};
+
+
 
 /**
  * Create a user log with resilience:

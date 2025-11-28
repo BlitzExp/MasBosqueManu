@@ -1,5 +1,5 @@
 import { UserLog } from '@/Modelo/UserLog';
-import { getAllUserLogs } from '@/services/logService';
+import { getAllUserLogsResilient } from '@/services/resilientLogService';
 
 export function showLogsController() {
 
@@ -15,7 +15,7 @@ export function showLogsController() {
     };
 
     const fetchLogs = async (): Promise<UserLog[]> => {
-        return await getAllUserLogs();
+        return await getAllUserLogsResilient();
     };
 
     const filterLogsBy = async (fromDate: string, toDate: string, name: string): Promise<UserLog[]> => {

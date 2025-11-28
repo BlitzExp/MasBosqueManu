@@ -1,13 +1,13 @@
+import { getUser, saveUser } from '@/services/localdatabase';
+import {
+  createProfileResilient,
+  getCurrentUserResilient,
+  getProfileByIdResilient,
+  signInResilient,
+  signUpResilient
+} from '@/services/resilientAuthService';
 import { useRouter } from 'expo-router';
 import { Alert } from 'react-native';
-import {
-  createProfile,
-  getCurrentUser,
-  getProfileById,
-  signIn,
-  signUp
-} from '../services/authenticateService';
-import { getUser, saveUser } from '../services/localdatabase';
 
 export function useAuthController() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export function useAuthController() {
     }
 
     try {
-      const { user } = (await signIn(email, password)) ?? {};
+      const { user } = (await signInResilient(email, password)) ?? {};
 
       console.log('Logged user:', user);
 
@@ -35,15 +35,15 @@ export function useAuthController() {
 
   const storeUserData = async () => {
     try {
-      const user = await getCurrentUser();
+      const user = await getCurrentUserResilient();
       const local = await getUser();
 
       let profile: any = null;
-      if (user && user.id) {
-        profile = await getProfileById(user.id).catch(() => null);
+      if (user && 'id' in user && user.id) {
+        profile = await getProfileByIdResilient(user.id).catch(() => null);
       }
 
-      const finalId = user?.id ?? local?.userId ?? '';
+      const finalId = (user && 'id' in user ? user.id : null) ?? local?.userId ?? '';
       const finalName = profile?.name ?? local?.name ?? '';
       const finalNvisits =
         profile?.nvisits !== undefined && profile?.nvisits !== null
@@ -75,13 +75,13 @@ const register = async (email: string, password: string, userType: string, nameI
   }
 
   try {
-    const signUpData = await signUp(email, password);
+    const signUpData = await signUpResilient(email, password);
     let user = (signUpData as any)?.user;
 
     // If no session was created, try to sign in (user must confirm email first in many setups)
     if (!((signUpData as any)?.session)) {
       try {
-        const signInData = await signIn(email, password);
+        const signInData = await signInResilient(email, password);
         user = (signInData as any)?.user;
       } catch (signInErr: any) {
         Alert.alert(
@@ -95,7 +95,7 @@ const register = async (email: string, password: string, userType: string, nameI
 
     if (!user) throw new Error('No se pudo obtener el usuario tras el registro.');
 
-    await createProfile({
+    await createProfileResilient({
       id: user.id,
       name: nameInput,
       role: userType,
