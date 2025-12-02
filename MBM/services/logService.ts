@@ -1,10 +1,9 @@
 import { UserLog } from '@/Modelo/UserLog';
 import { supabase } from './supabase';
-
+import * as FileSystem from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
 
 export type UserLogInsert = Omit<UserLog, 'id'>;
-
-
 
 export const createUserLog = async (log: UserLogInsert): Promise<UserLog> => {
   const {
@@ -77,6 +76,44 @@ export const deleteUserLog = async (logID: string): Promise<boolean> => {
 
   if (error) throw error;
   return true;
+};
+
+export const uploadImageToSupabase = async (uri: string): Promise<string | null> => {
+  try {
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: 'base64',
+    });
+
+    // 2. Convert Base64 to ArrayBuffer
+    const fileData = decode(base64);
+
+    // 3. Generate a unique file name (e.g., user-id_timestamp.jpg)
+    // You might want to pass the userID here for better folder structure
+    const fileName = `log_${new Date().getTime()}.jpg`;
+
+    // 4. Upload to the bucket
+    const { data, error } = await supabase.storage
+      .from('Log File Uploads') 
+      .upload(fileName, fileData, {
+        contentType: 'image/jpeg',
+      });
+
+    if (error) {
+      console.error('Supabase Storage Error:', error);
+      throw error;
+    }
+
+    // 5. Get the Public URL to save in the database
+    const { data: publicData } = supabase.storage
+      .from('Log File Uploads')
+      .getPublicUrl(fileName);
+
+    return publicData.publicUrl;
+
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    return null;
+  }
 };
 
 

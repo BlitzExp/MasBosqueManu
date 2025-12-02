@@ -1,7 +1,7 @@
 import type { UserLog } from '@/Modelo/UserLog';
 import { getUserName } from '@/services/localdatabase';
-import { createUserLog } from '@/services/logService';
-import {increseProfileVisits, updateLastVisit} from '@/services/profileVisitsService';
+import { createUserLog, uploadImageToSupabase } from '@/services/logService';
+import { increseProfileVisits, updateLastVisit } from '@/services/profileVisitsService';
 import { supabase } from '@/services/supabase';
 import { Alert } from 'react-native';
 
@@ -27,16 +27,26 @@ type SubmitParams = {
   arrivalHour: string;
   departureHour: string;
   description?: string;
+  image?: string | null; 
   onSuccess?: () => void;
 };
 
-export async function submitLog({ arrivalHour, departureHour, description, onSuccess }: SubmitParams) {
+export async function submitLog({ arrivalHour, departureHour, description, image, onSuccess }: SubmitParams) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       Alert.alert('Error', 'Debes iniciar sesión.');
       return;
+    }
+
+    // 1. Handle Image Upload if an image exists
+    let publicImageUrl = null;
+    if (image) {
+      publicImageUrl = await uploadImageToSupabase(image);
+      if (!publicImageUrl) {
+         Alert.alert('Aviso', 'La imagen no se pudo subir, pero se guardará el registro.');
+      }
     }
 
     const name = await getUserName();
@@ -48,11 +58,10 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
       ingressTime: arrivalHour || null,
       exitTime: departureHour || null,
       description: description || null,
-      image: null,
+      image: publicImageUrl, 
     };
 
     await createUserLog(log);
-    
 
     Alert.alert('Éxito', 'Bitácora enviada.');
     onSuccess?.();
