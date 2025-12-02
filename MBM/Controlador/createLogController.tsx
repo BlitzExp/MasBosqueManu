@@ -50,17 +50,19 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
       return;
     }
 
-    // Try to get userID from multiple sources
+    // Get userID - MUST be UUID, never email
     let userID = (user as any)?.id;
     
-    // If not found, try alternative properties
     if (!userID) {
-      userID = (user as any)?.user_id || (user as any)?.userId || (user as any)?.email;
-    }
-    
-    if (!userID) {
-      console.error('❌ User ID is missing from auth user object:', user);
+      console.error('❌ User ID is missing. User object:', user);
       Alert.alert('Error', 'No se pudo obtener el ID de usuario. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
+    // Validate that userID looks like a UUID (not an email)
+    if (userID.includes('@')) {
+      console.error('❌ Invalid userID (contains @):', userID);
+      Alert.alert('Error', 'ID de usuario inválido. Por favor inicia sesión nuevamente.');
       return;
     }
 

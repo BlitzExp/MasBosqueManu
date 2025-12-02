@@ -12,27 +12,47 @@ export type MapPinInsert = Omit<MapPin, 'id'>;
 
 export const getAllMapPinsResilient = async (): Promise<MapPin[]> => {
   try {
-    if (isOnline()) {
-      // Try online first
+    if (!isOnline()) {
+      // Offline - use local cache immediately
+      console.log('📍 Offline mode: Loading pins from local cache');
+      const cached = await localdatabase.getPinsLocations();
+      return cached.length > 0 ? cached : [];
+    }
+
+    // Online - try to fetch from Supabase with simple timeout
+    try {
       const { data, error } = await supabase
         .from('Localizations')
-        .select('*');
+        .select('*')
+        .limit(1000); // Add limit to prevent huge queries
       
-      if (error) throw error;
+      if (error) {
+        console.warn('⚠️ Supabase error:', error.message);
+        throw error;
+      }
       
-      // Cache locally
+      // Cache locally if we got data
       if (data && data.length > 0) {
+        console.log(`✓ Loaded ${data.length} pins from Supabase, caching locally`);
         await localdatabase.addPinsLocations(data);
       }
       
-      return data as MapPin[];
-    } else {
-      // Fallback to local cache
-      return await localdatabase.getPinsLocations();
+      return data || [];
+    } catch (supabaseError) {
+      console.warn('⚠️ Supabase fetch failed:', supabaseError);
+      // Fall back to local cache
+      const cached = await localdatabase.getPinsLocations();
+      console.log(`✓ Fell back to ${cached.length} cached pins`);
+      return cached.length > 0 ? cached : [];
     }
   } catch (error) {
-    console.warn('Failed to get map pins from online, using local cache:', error);
-    return await localdatabase.getPinsLocations();
+    console.error('❌ getAllMapPinsResilient error:', error);
+    try {
+      const cached = await localdatabase.getPinsLocations();
+      return cached.length > 0 ? cached : [];
+    } catch {
+      return [];
+    }
   }
 };
 

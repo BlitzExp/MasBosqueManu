@@ -97,26 +97,27 @@ export const getCurrentUserResilient = async () => {
       // Also cache the user ID locally for offline fallback
       if (data.user?.id) {
         await AsyncStorage.setItem('cachedUserId', data.user.id);
+        console.log('✓ Cached user ID:', data.user.id);
       }
       
       return data.user;
     } else {
-      // Return cached user info with ID
+      // Return cached user info with ID - MUST be from cachedUserId, never email
       const cachedUserId = await AsyncStorage.getItem('cachedUserId');
       const localUser = await localdatabase.getUser();
       
-      if (cachedUserId && localUser) {
+      if (cachedUserId) {
+        console.log('⚠️ Offline: Using cached user ID');
         return { 
-          id: cachedUserId, 
-          email: localUser.userId,
+          id: cachedUserId,
+          email: localUser?.userId,
           user_metadata: {
-            name: localUser.name
+            name: localUser?.name
           }
         };
-      } else if (cachedUserId) {
-        return { id: cachedUserId };
       }
       
+      console.error('❌ No cached user ID available and offline');
       return null;
     }
   } catch (error) {
@@ -125,18 +126,18 @@ export const getCurrentUserResilient = async () => {
     // Last resort: try to get from local cache
     try {
       const cachedUserId = await AsyncStorage.getItem('cachedUserId');
-      const localUser = await localdatabase.getUser();
       
       if (cachedUserId) {
+        console.log('⚠️ Using fallback cached user ID');
         return { 
-          id: cachedUserId, 
-          email: localUser?.userId
+          id: cachedUserId
         };
       }
     } catch (fallbackError) {
       console.error('Fallback user fetch error:', fallbackError);
     }
     
+    console.error('❌ Cannot get user ID - no cached data available');
     return null;
   }
 };

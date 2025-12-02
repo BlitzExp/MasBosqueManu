@@ -1,12 +1,12 @@
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
-import { useRouter } from 'expo-router';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 
 import NavigationBar from '../components/ui/NavigationBar';
 import { fetchMapPins } from '../Controlador/mapPinsController';
 import { MapPin } from '../Modelo/MapPins';
+import { debugLog } from '../services/debugLogger';
 
 import { useEffect, useState } from 'react';
 
@@ -21,8 +21,6 @@ Notifications.setNotificationHandler({
 });
 
 export default function MapScreen() {
-  const router = useRouter();
-  const [userType, setUserType] = useState('user');
   const [pins, setPins] = useState<MapPin[]>([]);
   const [initialRegion, setInitialRegion] = useState<Region | null>(null);
 
@@ -65,10 +63,12 @@ export default function MapScreen() {
   useEffect(() => {
     const loadPins = async () => {
       try {
+        debugLog.info('🗺️ Loading map pins...');
         const fetched = await fetchMapPins();
         setPins(fetched);
+        debugLog.info(`✓ Map display: ${fetched.length} pins`);
       } catch (err) {
-        console.error('Error loading map pins:', err);
+        debugLog.error('Error loading map pins:', err);
         setPins([]);
       }
     };
