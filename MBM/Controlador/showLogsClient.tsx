@@ -1,6 +1,7 @@
 import { UserLog } from '@/Modelo/UserLog';
-import { getUserLogs } from '@/services/logService';
-import { supabase } from '@/services/supabase';
+import { isOnline } from '@/services/connectionManager';
+import { getCurrentUserResilient } from '@/services/resilientAuthService';
+import { getUserLogsResilient } from '@/services/resilientLogService';
 import { router } from 'expo-router';
 
 export function showLogsController() {
@@ -17,12 +18,24 @@ export function showLogsController() {
     };
 
     const fetchLogs = async (): Promise<UserLog[]> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            router.replace('/logIn');
+        try {
+            console.log("📝 Fetching user logs...");
+            const user = await getCurrentUserResilient();
+            if (!user) {
+                console.warn('❌ No user found, redirecting to login');
+                router.replace('/logIn');
+                return [];
+            }
+            const userId = (user as any)?.id || (user as any)?.email;
+            // 💾 getUserLogsResilient automatically caches logs locally for offline access
+            const logs = await getUserLogsResilient(userId);
+            const connectionStatus = isOnline() ? '✓ En línea' : '⚠️ Modo offline';
+            console.log(`📊 Logs loaded (${connectionStatus}):`, logs.length);
+            return logs;
+        } catch (err: any) {
+            console.error('❌ Error fetching logs:', err);
             return [];
         }
-        return await getUserLogs(user.id);
     };
 
     const filterLogsBy = async (fromDate: string, toDate: string): Promise<UserLog[]> => {

@@ -1,8 +1,10 @@
 import type { UserLog } from '@/Modelo/UserLog';
+import { isOnline } from '@/services/connectionManager';
 import { getUserName } from '@/services/localdatabase';
-import { createUserLog, uploadImageToSupabase } from '@/services/logService';
+import { uploadImageToSupabase } from '@/services/logService';
 import { increseProfileVisits, updateLastVisit } from '@/services/profileVisitsService';
-import { supabase } from '@/services/supabase';
+import { getCurrentUserResilient } from '@/services/resilientAuthService';
+import { createUserLogResilient } from '@/services/resilientLogService';
 import { Alert } from 'react-native';
 
 export function getCurrentTimeString() {
@@ -13,14 +15,21 @@ export function getCurrentTimeString() {
 }
 
 export async function clockIn(setArrivalHour: (value: string) => void) {
-  console.log("Clocking in");
-  setArrivalHour(getCurrentTimeString());
-  await increseProfileVisits();
-  await updateLastVisit();
+  try {
+    console.log("⏱️ Clocking in");
+    setArrivalHour(getCurrentTimeString());
+    await increseProfileVisits();
+    await updateLastVisit();
+    console.log("✓ Clock in successful");
+  } catch (error) {
+    console.error("❌ Clock in error:", error);
+    Alert.alert('Error', 'No se pudo registrar entrada');
+  }
 }
 
 export function clockOut(setDepartureHour: (value: string) => void) {
   setDepartureHour(getCurrentTimeString());
+  console.log("⏱️ Clocking out");
 }
 
 type SubmitParams = {
@@ -33,14 +42,15 @@ type SubmitParams = {
 
 export async function submitLog({ arrivalHour, departureHour, description, image, onSuccess }: SubmitParams) {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    console.log("📝 Submitting log...");
+    
+    const user = await getCurrentUserResilient();
 
     if (!user) {
+      console.error('❌ No user found');
       Alert.alert('Error', 'Debes iniciar sesión.');
       return;
     }
-
-    // 1. Handle Image Upload if an image exists
     let publicImageUrl = null;
     if (image) {
       publicImageUrl = await uploadImageToSupabase(image);
@@ -49,10 +59,25 @@ export async function submitLog({ arrivalHour, departureHour, description, image
       }
     }
 
+    let userID = (user as any)?.id;
+    
+    if (!userID) {
+      console.error('❌ User ID is missing. User object:', user);
+      Alert.alert('Error', 'No se pudo obtener el ID de usuario. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
+    // Validate that userID looks like a UUID (not an email)
+    if (userID.includes('@')) {
+      console.error('❌ Invalid userID (contains @):', userID);
+      Alert.alert('Error', 'ID de usuario inválido. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
     const name = await getUserName();
 
     const log: UserLog = {
-      userID: user.id,
+      userID,
       name,
       logDate: new Date().toISOString().split('T')[0],
       ingressTime: arrivalHour || null,
@@ -61,12 +86,15 @@ export async function submitLog({ arrivalHour, departureHour, description, image
       image: publicImageUrl, 
     };
 
-    await createUserLog(log);
+    await createUserLogResilient(log);
+    
+    const connectionStatus = isOnline() ? '✓ Sincronizado' : '⚠️ Esperando conexión';
+    console.log(`✓ Log created: ${connectionStatus}`);
 
-    Alert.alert('Éxito', 'Bitácora enviada.');
+    Alert.alert('Éxito', `Bitácora enviada. ${!isOnline() ? '(Se sincronizará cuando tenga conexión)' : ''}`);
     onSuccess?.();
   } catch (err: any) {
-    console.log(err);
+    console.error("❌ Submit log error:", err);
     Alert.alert('Error', err?.message ?? String(err));
   }
 }

@@ -1,9 +1,9 @@
-import { clockIn, clockOut, submitLog } from '@/Controlador/createLogController';
 import { sendArrivalAlert } from '@/Controlador/arrivalAlert';
+import { clockIn, clockOut, submitLog } from '@/Controlador/createLogController';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import { Text, TextInput, TouchableOpacity, View, Image, Alert } from 'react-native'; 
-import * as ImagePicker from 'expo-image-picker'; 
+import { Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import NavigationBar from '@/components/ui/NavigationBar';
 import styles from '@/Styles/styles';

@@ -1,7 +1,7 @@
 import { UserLog } from '@/Modelo/UserLog';
-import { supabase } from './supabase';
-import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
+import * as FileSystem from 'expo-file-system/legacy';
+import { supabase } from './supabase';
 
 export type UserLogInsert = Omit<UserLog, 'id'>;
 
@@ -116,4 +116,26 @@ export const uploadImageToSupabase = async (uri: string): Promise<string | null>
   }
 };
 
+/**
+ * Check if a log with the same userID, logDate, and times already exists
+ * This prevents duplicate logs when syncing from offline
+ */
+export const logAlreadyExists = async (log: UserLogInsert): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('UserLogs')
+      .select('id')
+      .eq('userID', log.userID)
+      .eq('logDate', log.logDate)
+      .eq('ingressTime', log.ingressTime || null)
+      .eq('exitTime', log.exitTime || null)
+      .limit(1);
 
+    if (error) throw error;
+    return data && data.length > 0;
+  } catch (error) {
+    console.error('Error checking if log exists:', error);
+    // If we can't verify, assume it doesn't exist to allow sync attempt
+    return false;
+  }
+};

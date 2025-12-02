@@ -2,8 +2,10 @@ import {
     acceptEmergencyAlert as svcAcceptEmergencyAlert,
     getPendingArrivalAlerts as svcGetPendingEmergencies,
     mapEmergencyPointName as svcMapEmergencyPointName,
-    subscribeToPendingArrivalAlerts as svcSubscribePendingEmergencies,
+    subscribeToPendingArrivalAlerts as svcSubscribePendingEmergencies
 } from "@/services/emergencyService";
+
+
 
 export const getPendingEmergencies = async () => {
     try {
