@@ -332,7 +332,20 @@ export const getPendingLogs = async (): Promise<any[]> => {
     const results = db.getAllSync<any>(
       "SELECT * FROM pending_logs WHERE synced = 0 ORDER BY created_at ASC"
     );
-    return results || [];
+    
+    // Deduplicate: keep only one instance per userID + logDate combination (to prevent duplicate syncs)
+    const seen = new Set<string>();
+    const deduped: any[] = [];
+    
+    for (const log of results) {
+      const uniqueKey = `${log.userID}_${log.logDate}`;
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey);
+        deduped.push(log);
+      }
+    }
+    
+    return deduped;
   } catch (error) {
     console.error("getPendingLogs error:", error);
     return [];
@@ -376,9 +389,19 @@ export const saveSyncedLog = async (log: any): Promise<void> => {
     const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
     const now = new Date().toISOString();
     
+    // Check if log already exists by server_id to avoid duplicates
+    const existingLog = db.getFirstSync<{ id: number }>(
+      `SELECT id FROM pending_logs WHERE server_id = '${escape(log.id)}' LIMIT 1`
+    );
+    
+    if (existingLog) {
+      console.log(`⚠️ Log ${log.id} already cached locally, skipping duplicate`);
+      return;
+    }
+    
     // Save synced logs from online DB to local cache for offline access
     db.execSync(`
-      INSERT OR REPLACE INTO pending_logs (userID, name, logDate, ingressTime, exitTime, description, image, created_at, synced, server_id)
+      INSERT INTO pending_logs (userID, name, logDate, ingressTime, exitTime, description, image, created_at, synced, server_id)
       VALUES (
         '${escape(log.userID)}',
         '${escape(log.name)}',
@@ -406,9 +429,22 @@ export const getLocalUserLogs = async (userID: string): Promise<any[]> => {
     if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
     
     const results = db.getAllSync<any>(
-      `SELECT * FROM pending_logs WHERE userID = '${userID.replace(/'/g, "''")}' ORDER BY logDate DESC`
+      `SELECT * FROM pending_logs WHERE userID = '${userID.replace(/'/g, "''")}' ORDER BY logDate DESC, id DESC`
     );
-    return results || [];
+    
+    // Deduplicate: keep only the latest version of each log by server_id (or id if no server_id)
+    const seen = new Set<string>();
+    const deduped: any[] = [];
+    
+    for (const log of results) {
+      const uniqueKey = log.server_id || String(log.id);
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey);
+        deduped.push(log);
+      }
+    }
+    
+    return deduped;
   } catch (error) {
     console.error("getLocalUserLogs error:", error);
     return [];

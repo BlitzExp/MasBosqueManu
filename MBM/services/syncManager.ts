@@ -54,9 +54,34 @@ async function syncPendingLog(log: any): Promise<boolean> {
     console.log(`🔄 [${new Date().toLocaleTimeString()}] Syncing local log ${log.id} to Supabase...`);
     const failCount = syncState.failedAttempts.get(logKey) || 0;
 
+    // Don't retry if already synced (server_id exists)
+    if (log.server_id && log.synced === 1) {
+      console.log(`⏭️ Log ${log.id} already synced (server ID: ${log.server_id}), skipping`);
+      return true;
+    }
+
     if (failCount >= MAX_RETRIES) {
       console.error(`❌ Max retries (${MAX_RETRIES}) reached for log ${log.id} - giving up`);
       return false;
+    }
+
+    // Check if log already exists in Supabase to prevent duplicates
+    const logExists = await logService.logAlreadyExists({
+      userID: log.userID,
+      name: log.name,
+      logDate: log.logDate,
+      ingressTime: log.ingressTime,
+      exitTime: log.exitTime,
+      description: log.description,
+      image: log.image,
+    });
+
+    if (logExists) {
+      console.log(`⚠️ Log already exists in Supabase for ${log.userID} on ${log.logDate}, marking as synced locally`);
+      // Mark as synced even though we didn't create it (it was a duplicate)
+      await localdatabase.markLogAsSynced(log.id, `existing_${log.userID}_${log.logDate}`);
+      syncState.stats.logsSync.success++;
+      return true;
     }
 
     const result = await logService.createUserLog({

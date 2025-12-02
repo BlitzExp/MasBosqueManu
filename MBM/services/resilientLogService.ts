@@ -20,13 +20,22 @@ export const isConnected = async () => {
 
 /**
  * Create a user log with resilience:
- * 1. Try to post to online DB (Supabase)
- * 2. If fails, save to local DB
- * 3. Sync manager will retry immediately + periodically
+ * 1. Check if log already exists to prevent duplicates
+ * 2. Try to post to online DB (Supabase)
+ * 3. If fails, save to local DB
+ * 4. Sync manager will retry immediately + periodically
  */
 export const createUserLogResilient = async (log: UserLogInsert): Promise<UserLog> => {
   try {
     console.log('📝 Creating log - trying Supabase first...');
+    
+    // Check if log already exists (prevent duplicates)
+    const exists = await logService.logAlreadyExists(log);
+    if (exists) {
+      console.warn('⚠️ Log already exists in Supabase, not creating duplicate');
+      throw new Error('Log already exists');
+    }
+    
     // Try online first
     const result = await logService.createUserLog(log);
     console.log('✓ Log created in Supabase:', result.id);
