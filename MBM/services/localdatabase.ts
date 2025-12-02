@@ -109,7 +109,7 @@ export const initDatabase = async () => {
   `);
   try {
     db.getFirstSync("SELECT user_id FROM user_data LIMIT 1");
-  } catch (err) {
+  } catch {
     try {
       db.execSync(`BEGIN TRANSACTION;
         CREATE TABLE IF NOT EXISTS new_user_data (
@@ -364,6 +364,38 @@ export const deletePendingLog = async (logId: number): Promise<void> => {
     db.execSync(`DELETE FROM pending_logs WHERE id = ${logId};`);
   } catch (error) {
     console.error("deletePendingLog error:", error);
+    throw error;
+  }
+};
+
+export const saveSyncedLog = async (log: any): Promise<void> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const escape = (s: any) => String(s ?? "").replace(/'/g, "''");
+    const now = new Date().toISOString();
+    
+    // Save synced logs from online DB to local cache for offline access
+    db.execSync(`
+      INSERT OR REPLACE INTO pending_logs (userID, name, logDate, ingressTime, exitTime, description, image, created_at, synced, server_id)
+      VALUES (
+        '${escape(log.userID)}',
+        '${escape(log.name)}',
+        '${escape(log.logDate)}',
+        ${log.ingressTime ? `'${escape(log.ingressTime)}'` : 'NULL'},
+        ${log.exitTime ? `'${escape(log.exitTime)}'` : 'NULL'},
+        ${log.description ? `'${escape(log.description)}'` : 'NULL'},
+        ${log.image ? `'${escape(log.image)}'` : 'NULL'},
+        '${escape(now)}',
+        1,
+        '${escape(log.id)}'
+      );
+    `);
+    
+    console.log(`✓ Log ${log.id} cached locally`);
+  } catch (error) {
+    console.error("saveSyncedLog error:", error);
     throw error;
   }
 };

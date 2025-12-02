@@ -1,10 +1,10 @@
-import { getUserName } from "@/services/localdatabase";
 import {
-    createArrivalAlertResilient,
-    acceptArrivalAlertResilient as svcAcceptArrivalAlert,
-    getPendingArrivalAlertsResilient as svcGetPendingArrivalAlerts,
-    subscribeToPendingArrivalAlertsResilient as svcSubscribeToPendingArrivalAlerts,
-} from "@/services/resilientArrivalAlertService";
+    createArrivalAlert,
+    acceptArrivalAlert as svcAcceptArrivalAlert,
+    getPendingArrivalAlerts as svcGetPendingArrivalAlerts,
+    subscribeToPendingArrivalAlerts as svcSubscribeToPendingArrivalAlerts,
+} from "@/services/arrivalAlertService";
+import { getUserName } from "@/services/localdatabase";
 
 import { Alert } from "react-native";
 
@@ -46,7 +46,7 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
             exitTime,
         };
 
-        const alert = await createArrivalAlertResilient(dto as any);
+        const alert = await createArrivalAlert(dto as any);
 
         Alert.alert("La alerta de llegada ha sido enviada correctamente.");
 

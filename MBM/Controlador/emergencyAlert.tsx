@@ -1,10 +1,11 @@
 import {
-    acceptEmergencyAlertResilient as svcAcceptEmergencyAlert,
-    getPendingArrivalAlertsResilient as svcGetPendingEmergencies,
-    subscribeToPendingEmergenciesResilient as svcSubscribePendingEmergencies,
-} from "@/services/resilientEmergencyService";
+    acceptEmergencyAlert as svcAcceptEmergencyAlert,
+    getPendingArrivalAlerts as svcGetPendingEmergencies,
+    mapEmergencyPointName as svcMapEmergencyPointName,
+    subscribeToPendingArrivalAlerts as svcSubscribePendingEmergencies
+} from "@/services/emergencyService";
 
-import { mapEmergencyPointName as svcMapEmergencyPointName } from "@/services/emergencyService";
+
 
 export const getPendingEmergencies = async () => {
     try {

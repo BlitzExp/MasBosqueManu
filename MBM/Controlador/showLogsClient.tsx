@@ -27,6 +27,7 @@ export function showLogsController() {
                 return [];
             }
             const userId = (user as any)?.id || (user as any)?.email;
+            // 💾 getUserLogsResilient automatically caches logs locally for offline access
             const logs = await getUserLogsResilient(userId);
             const connectionStatus = isOnline() ? '✓ En línea' : '⚠️ Modo offline';
             console.log(`📊 Logs loaded (${connectionStatus}):`, logs.length);

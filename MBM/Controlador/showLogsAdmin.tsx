@@ -1,4 +1,5 @@
 import { UserLog } from '@/Modelo/UserLog';
+import * as localdatabase from '@/services/localdatabase';
 import { getAllUserLogsResilient } from '@/services/resilientLogService';
 
 export function showLogsController() {
@@ -15,7 +16,19 @@ export function showLogsController() {
     };
 
     const fetchLogs = async (): Promise<UserLog[]> => {
-        return await getAllUserLogsResilient();
+        const logs = await getAllUserLogsResilient();
+        
+        // 💾 Save all logs to local DB for offline access
+        console.log(`💾 Caching ${logs.length} admin logs locally...`);
+        for (const log of logs) {
+            try {
+                await localdatabase.saveSyncedLog(log);
+            } catch (error) {
+                console.warn(`⚠️ Error caching log ${log.id}:`, error);
+            }
+        }
+        
+        return logs;
     };
 
     const filterLogsBy = async (fromDate: string, toDate: string, name: string): Promise<UserLog[]> => {

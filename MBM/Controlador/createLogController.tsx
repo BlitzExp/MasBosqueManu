@@ -45,14 +45,29 @@ export async function submitLog({ arrivalHour, departureHour, description, onSuc
     const user = await getCurrentUserResilient();
 
     if (!user) {
+      console.error('❌ No user found');
       Alert.alert('Error', 'Debes iniciar sesión.');
+      return;
+    }
+
+    // Try to get userID from multiple sources
+    let userID = (user as any)?.id;
+    
+    // If not found, try alternative properties
+    if (!userID) {
+      userID = (user as any)?.user_id || (user as any)?.userId || (user as any)?.email;
+    }
+    
+    if (!userID) {
+      console.error('❌ User ID is missing from auth user object:', user);
+      Alert.alert('Error', 'No se pudo obtener el ID de usuario. Por favor inicia sesión nuevamente.');
       return;
     }
 
     const name = await getUserName();
 
     const log: UserLog = {
-      userID: (user as any)?.id || (user as any)?.email || 'unknown',
+      userID,
       name,
       logDate: new Date().toISOString().split('T')[0],
       ingressTime: arrivalHour || null,

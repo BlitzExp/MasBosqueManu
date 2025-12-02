@@ -3,10 +3,10 @@
  * Handles authentication with fallback to local data when offline
  */
 
-import { supabase } from './supabase';
-import * as localdatabase from './localdatabase';
-import { isOnline } from './connectionManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isOnline } from './connectionManager';
+import * as localdatabase from './localdatabase';
+import { supabase } from './supabase';
 
 export const signInResilient = async (email: string, password: string) => {
   try {
@@ -18,8 +18,11 @@ export const signInResilient = async (email: string, password: string) => {
       });
       if (error) throw error;
       
-      // Cache credentials for offline use
+      // Cache credentials and user ID for offline use
       await AsyncStorage.setItem('cachedEmail', email);
+      if (data.user?.id) {
+        await AsyncStorage.setItem('cachedUserId', data.user.id);
+      }
       await AsyncStorage.setItem('lastAuthTime', new Date().toISOString());
       
       return data;
@@ -28,7 +31,13 @@ export const signInResilient = async (email: string, password: string) => {
       const cachedEmail = await AsyncStorage.getItem('cachedEmail');
       if (cachedEmail === email) {
         console.log('⚠️ Offline: Using cached credentials');
-        return { user: { email } };
+        const cachedUserId = await AsyncStorage.getItem('cachedUserId');
+        return { 
+          user: { 
+            id: cachedUserId || email,
+            email 
+          } 
+        };
       } else {
         throw new Error('No internet connection. Please try again when online.');
       }
@@ -84,18 +93,51 @@ export const getCurrentUserResilient = async () => {
     if (isOnline()) {
       const { data, error } = await supabase.auth.getUser();
       if (error) throw error;
+      
+      // Also cache the user ID locally for offline fallback
+      if (data.user?.id) {
+        await AsyncStorage.setItem('cachedUserId', data.user.id);
+      }
+      
       return data.user;
     } else {
-      // Return cached user info
-      const cachedEmail = await AsyncStorage.getItem('cachedEmail');
-      if (cachedEmail) {
-        return { email: cachedEmail };
+      // Return cached user info with ID
+      const cachedUserId = await AsyncStorage.getItem('cachedUserId');
+      const localUser = await localdatabase.getUser();
+      
+      if (cachedUserId && localUser) {
+        return { 
+          id: cachedUserId, 
+          email: localUser.userId,
+          user_metadata: {
+            name: localUser.name
+          }
+        };
+      } else if (cachedUserId) {
+        return { id: cachedUserId };
       }
+      
       return null;
     }
   } catch (error) {
     console.error('Get current user error:', error);
-    throw error;
+    
+    // Last resort: try to get from local cache
+    try {
+      const cachedUserId = await AsyncStorage.getItem('cachedUserId');
+      const localUser = await localdatabase.getUser();
+      
+      if (cachedUserId) {
+        return { 
+          id: cachedUserId, 
+          email: localUser?.userId
+        };
+      }
+    } catch (fallbackError) {
+      console.error('Fallback user fetch error:', fallbackError);
+    }
+    
+    return null;
   }
 };
 

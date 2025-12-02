@@ -51,10 +51,11 @@ const syncState: SyncState = {
 async function syncPendingLog(log: any): Promise<boolean> {
   const logKey = `log_${log.id}`;
   try {
+    console.log(`🔄 [${new Date().toLocaleTimeString()}] Syncing local log ${log.id} to Supabase...`);
     const failCount = syncState.failedAttempts.get(logKey) || 0;
 
     if (failCount >= MAX_RETRIES) {
-      console.warn(`⚠️ Max retries reached for log ${log.id}`);
+      console.error(`❌ Max retries (${MAX_RETRIES}) reached for log ${log.id} - giving up`);
       return false;
     }
 
@@ -72,7 +73,7 @@ async function syncPendingLog(log: any): Promise<boolean> {
       await localdatabase.markLogAsSynced(log.id, result.id);
       syncState.failedAttempts.delete(logKey);
       syncState.stats.logsSync.success++;
-      console.log(`✓ Log ${log.id} synced (server: ${result.id})`);
+      console.log(`✓ Log ${log.id} synced successfully to Supabase (server ID: ${result.id})`);
       return true;
     }
 
@@ -82,7 +83,7 @@ async function syncPendingLog(log: any): Promise<boolean> {
     syncState.failedAttempts.set(logKey, failCount);
     syncState.stats.logsSync.failed++;
 
-    console.warn(`✗ Failed to sync log ${log.id} (${failCount}/${MAX_RETRIES}):`, error);
+    console.error(`✗ Failed to sync log ${log.id} (attempt ${failCount}/${MAX_RETRIES}):`, error);
     return false;
   }
 }
@@ -293,12 +294,12 @@ async function syncAllPendingArrivalAlerts(): Promise<void> {
 
 async function syncAll(): Promise<void> {
   if (!isOnline()) {
-    console.log('⚠️ Offline mode: Skipping sync');
+    console.log('⚠️ [OFFLINE] Skipping sync - no internet connection');
     return;
   }
 
   if (syncState.isSyncing) {
-    console.log('⏳ Sync already in progress');
+    console.log('⏳ Sync already in progress - skipping');
     return;
   }
 
@@ -306,14 +307,31 @@ async function syncAll(): Promise<void> {
   syncState.stats.lastSyncTime = new Date().toISOString();
 
   try {
-    console.log('🔄 Starting full sync...');
+    console.log(`🔄 [${new Date().toLocaleTimeString()}] Starting sync cycle...`);
+    
+    // Check for pending items
+    const pendingLogs = await localdatabase.getPendingLogs();
+    const pendingProfiles = await localdatabase.getPendingProfiles();
+    const pendingEmergencies = await localdatabase.getPendingEmergencies();
+    const pendingAlerts = await localdatabase.getPendingArrivalAlerts();
+    
+    const totalPending = pendingLogs.length + pendingProfiles.length + pendingEmergencies.length + pendingAlerts.length;
+    
+    if (totalPending === 0) {
+      console.log('✓ No pending items to sync');
+      return;
+    }
+    
+    console.log(`📊 Pending items: ${pendingLogs.length} logs, ${pendingProfiles.length} profiles, ${pendingEmergencies.length} emergencies, ${pendingAlerts.length} alerts`);
+    
     await syncAllPendingLogs();
     await syncAllPendingProfiles();
     await syncAllPendingEmergencies();
     await syncAllPendingArrivalAlerts();
-    console.log('✓ Sync completed successfully');
+    
+    console.log(`✓ Sync cycle completed at ${new Date().toLocaleTimeString()}`);
   } catch (error) {
-    console.error('❌ Error during sync:', error);
+    console.error('❌ Error during sync cycle:', error);
   } finally {
     syncState.isSyncing = false;
   }

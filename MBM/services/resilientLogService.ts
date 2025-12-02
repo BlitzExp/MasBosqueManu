@@ -22,17 +22,29 @@ export const isConnected = async () => {
  * Create a user log with resilience:
  * 1. Try to post to online DB (Supabase)
  * 2. If fails, save to local DB
- * 3. Sync manager will retry periodically
+ * 3. Sync manager will retry immediately + periodically
  */
 export const createUserLogResilient = async (log: UserLogInsert): Promise<UserLog> => {
   try {
+    console.log('📝 Creating log - trying Supabase first...');
     // Try online first
-    return await logService.createUserLog(log);
+    const result = await logService.createUserLog(log);
+    console.log('✓ Log created in Supabase:', result.id);
+    return result;
   } catch (error) {
-    console.warn('Failed to create log online, saving to local DB:', error);
+    console.warn('⚠️ Supabase failed, saving locally:', error);
     
     // Save to local DB for later sync
     const localLogId = await localdatabase.savePendingLog(log);
+    console.log(`✓ Log saved locally (ID: ${localLogId})`);
+    
+    // IMPORTANT: Trigger sync immediately (don't wait 30 seconds)
+    console.log('🔄 Triggering immediate sync...');
+    try {
+      await syncManager.triggerSync();
+    } catch (syncError) {
+      console.warn('⚠️ Sync trigger failed (will retry on schedule):', syncError);
+    }
     
     // Return a mock UserLog object with the local ID
     return {
@@ -62,12 +74,23 @@ export const getAllUserLogsResilient = async (): Promise<UserLog[]> => {
 };
 
 /**
- * Get user logs for a specific user with resilience
+ * Get user logs for a specific user with resilience:
+ * 1. Try to fetch from online DB
+ * 2. Save fetched logs to local DB for offline access
+ * 3. If fails, return from local DB
  */
 export const getUserLogsResilient = async (userID: string): Promise<UserLog[]> => {
   try {
     // Try online first
-    return await logService.getUserLogs(userID);
+    const onlineLogs = await logService.getUserLogs(userID);
+    
+    // Save logs to local DB for offline access
+    console.log(`💾 Caching ${onlineLogs.length} logs locally...`);
+    for (const log of onlineLogs) {
+      await localdatabase.saveSyncedLog(log);
+    }
+    
+    return onlineLogs;
   } catch (error) {
     console.warn('Failed to get user logs from online DB, using local fallback:', error);
     
