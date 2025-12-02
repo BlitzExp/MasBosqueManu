@@ -10,9 +10,11 @@
     "newArchEnabled": true,
     "ios": {
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app needs to access your location to show it on the map."
+        "NSLocationWhenInUseUsageDescription": "This app needs to access your location to show it on the map.",
+        "ITSAppUsesNonExemptEncryption": false
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.edgarong17.MBM"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +24,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.edgarong17.MBM"
     },
     "web": {
       "output": "static",
@@ -55,6 +62,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "11cc43cd-2207-4b53-b3e3-439cee5fab97"
+      }
     }
   }
 }
