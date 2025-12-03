@@ -1,9 +1,9 @@
 import { UserLog } from '@/Modelo/UserLog';
 import { isOnline } from '@/services/connectionManager';
+import { LoggingService } from '@/services/loggingService';
 import { getCurrentUserResilient } from '@/services/resilientAuthService';
 import { getUserLogsResilient } from '@/services/resilientLogService';
 import { router } from 'expo-router';
-import { LoggingService } from '@/services/loggingService';
 
 export function showLogsController() {
 
@@ -28,7 +28,6 @@ export function showLogsController() {
                 return [];
             }
             const userId = (user as any)?.id || (user as any)?.email;
-            // 💾 getUserLogsResilient automatically caches logs locally for offline access
             const logs = await getUserLogsResilient(userId);
             const connectionStatus = isOnline() ? '✓ En línea' : '⚠️ Modo offline';
             LoggingService.info(`Logs cargados (${connectionStatus}):`, logs.length);

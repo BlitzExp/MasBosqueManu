@@ -451,6 +451,34 @@ export const getLocalUserLogs = async (userID: string): Promise<any[]> => {
   }
 };
 
+export const getAllLocalUserLogs = async (): Promise<any[]> => {
+  try {
+    await initDatabase();
+    if (!db) db = SQLite.openDatabaseSync("localdatabase.db");
+    
+    const results = db.getAllSync<any>(
+      `SELECT * FROM pending_logs ORDER BY logDate DESC, id DESC`
+    );
+    
+    // Deduplicate: keep only the latest version of each log by server_id (or id if no server_id)
+    const seen = new Set<string>();
+    const deduped: any[] = [];
+    
+    for (const log of results) {
+      const uniqueKey = log.server_id || String(log.id);
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey);
+        deduped.push(log);
+      }
+    }
+    
+    return deduped;
+  } catch (error) {
+    console.error("getAllLocalUserLogs error:", error);
+    return [];
+  }
+};
+
 // ============== PROFILE STORAGE FUNCTIONS ==============
 
 export const saveProfileLocally = async (profile: any): Promise<number> => {

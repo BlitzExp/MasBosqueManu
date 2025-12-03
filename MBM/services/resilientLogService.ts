@@ -73,12 +73,18 @@ export const createUserLogResilient = async (log: UserLogInsert): Promise<UserLo
 export const getAllUserLogsResilient = async (): Promise<UserLog[]> => {
   try {
     // Try online first
-    return await logService.getAllUserLogs();
+    const onlineLogs = await logService.getAllUserLogs();
+    LoggingService.info('LOG_CACHE', `💾 Caching ${onlineLogs.length} logs locally...`);
+    for (const log of onlineLogs) {
+      await localdatabase.saveSyncedLog(log);
+    }
+
+    return onlineLogs;
   } catch (error) {
-    LoggingService.warn('LOGS_FALLBACK', 'Failed to get logs from online DB, using local fallback:', error as Error);
+    LoggingService.warn('LOG_FETCH_FALLBACK', 'Failed to get all user logs from online DB, using local fallback:', error as Error);
     
-    // Return local pending logs as fallback
-    const localLogs = await localdatabase.getPendingLogs();
+    // Return local logs as fallback
+    const localLogs = await localdatabase.getAllLocalUserLogs();
     return localLogs as UserLog[];
   }
 };
