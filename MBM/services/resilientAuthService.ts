@@ -6,6 +6,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isOnline } from './connectionManager';
 import * as localdatabase from './localdatabase';
+import { LoggingService } from './loggingService';
 import { supabase } from './supabase';
 
 export const signInResilient = async (email: string, password: string) => {
@@ -22,6 +23,7 @@ export const signInResilient = async (email: string, password: string) => {
       await AsyncStorage.setItem('cachedEmail', email);
       if (data.user?.id) {
         await AsyncStorage.setItem('cachedUserId', data.user.id);
+        LoggingService.info('AUTH', `✓ User signed in: ${data.user.id}`);
       }
       await AsyncStorage.setItem('lastAuthTime', new Date().toISOString());
       
@@ -30,7 +32,7 @@ export const signInResilient = async (email: string, password: string) => {
       // Offline - check cached credentials
       const cachedEmail = await AsyncStorage.getItem('cachedEmail');
       if (cachedEmail === email) {
-        console.log('⚠️ Offline: Using cached credentials');
+        LoggingService.warn('AUTH', '⚠️ Offline: Using cached credentials');
         const cachedUserId = await AsyncStorage.getItem('cachedUserId');
         return { 
           user: { 
@@ -43,7 +45,7 @@ export const signInResilient = async (email: string, password: string) => {
       }
     }
   } catch (error) {
-    console.error('Sign in error:', error);
+    LoggingService.error('AUTH', 'Sign in error:', error as Error);
     throw error;
   }
 };
@@ -62,10 +64,11 @@ export const signUpResilient = async (email: string, password: string) => {
     
     // Cache new user
     await AsyncStorage.setItem('cachedEmail', email);
+    LoggingService.info('AUTH', `✓ User signed up: ${email}`);
     
     return data;
   } catch (error) {
-    console.error('Sign up error:', error);
+    LoggingService.error('AUTH', 'Sign up error:', error as Error);
     throw error;
   }
 };
@@ -80,10 +83,11 @@ export const signOutResilient = async () => {
     // Clear local cache
     await AsyncStorage.removeItem('cachedEmail');
     await AsyncStorage.removeItem('lastAuthTime');
+    LoggingService.info('AUTH', '✓ User signed out');
     
     return true;
   } catch (error) {
-    console.error('Sign out error:', error);
+    LoggingService.error('AUTH', 'Sign out error:', error as Error);
     throw error;
   }
 };
@@ -97,7 +101,7 @@ export const getCurrentUserResilient = async () => {
       // Also cache the user ID locally for offline fallback
       if (data.user?.id) {
         await AsyncStorage.setItem('cachedUserId', data.user.id);
-        console.log('✓ Cached user ID:', data.user.id);
+        LoggingService.info('AUTH', `✓ Cached user ID: ${data.user.id}`);
       }
       
       return data.user;
@@ -107,7 +111,7 @@ export const getCurrentUserResilient = async () => {
       const localUser = await localdatabase.getUser();
       
       if (cachedUserId) {
-        console.log('⚠️ Offline: Using cached user ID');
+        LoggingService.warn('AUTH', '⚠️ Offline: Using cached user ID');
         return { 
           id: cachedUserId,
           email: localUser?.userId,
@@ -117,27 +121,27 @@ export const getCurrentUserResilient = async () => {
         };
       }
       
-      console.error('❌ No cached user ID available and offline');
+      LoggingService.error('AUTH', '❌ No cached user ID available and offline');
       return null;
     }
   } catch (error) {
-    console.error('Get current user error:', error);
+    LoggingService.error('AUTH', 'Get current user error:', error as Error);
     
     // Last resort: try to get from local cache
     try {
       const cachedUserId = await AsyncStorage.getItem('cachedUserId');
       
       if (cachedUserId) {
-        console.log('⚠️ Using fallback cached user ID');
+        LoggingService.warn('AUTH', '⚠️ Using fallback cached user ID');
         return { 
           id: cachedUserId
         };
       }
     } catch (fallbackError) {
-      console.error('Fallback user fetch error:', fallbackError);
+      LoggingService.error('AUTH', 'Fallback user fetch error:', fallbackError as Error);
     }
     
-    console.error('❌ Cannot get user ID - no cached data available');
+    LoggingService.error('AUTH', '❌ Cannot get user ID - no cached data available');
     return null;
   }
 };

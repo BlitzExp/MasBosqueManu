@@ -1,6 +1,7 @@
 import type { UserLog } from '@/Modelo/UserLog';
 import { isOnline } from '@/services/connectionManager';
 import { getUserName } from '@/services/localdatabase';
+import { LoggingService } from '@/services/loggingService';
 import { uploadImageToSupabase } from '@/services/logService';
 import { increseProfileVisits, updateLastVisit } from '@/services/profileVisitsService';
 import { getCurrentUserResilient } from '@/services/resilientAuthService';
@@ -16,20 +17,20 @@ export function getCurrentTimeString() {
 
 export async function clockIn(setArrivalHour: (value: string) => void) {
   try {
-    console.log("⏱️ Clocking in");
+    LoggingService.info('CLOCK_IN', "⏱️ Clocking in");
     setArrivalHour(getCurrentTimeString());
     await increseProfileVisits();
     await updateLastVisit();
-    console.log("✓ Clock in successful");
+    LoggingService.info('CLOCK_IN', "✓ Clock in successful");
   } catch (error) {
-    console.error("❌ Clock in error:", error);
+    LoggingService.error('CLOCK_IN', "❌ Clock in error:", error as Error);
     Alert.alert('Error', 'No se pudo registrar entrada');
   }
 }
 
 export function clockOut(setDepartureHour: (value: string) => void) {
   setDepartureHour(getCurrentTimeString());
-  console.log("⏱️ Clocking out");
+  LoggingService.info('CLOCK_OUT', "⏱️ Clocking out");
 }
 
 type SubmitParams = {
@@ -42,12 +43,12 @@ type SubmitParams = {
 
 export async function submitLog({ arrivalHour, departureHour, description, image, onSuccess }: SubmitParams) {
   try {
-    console.log("📝 Submitting log...");
+    LoggingService.info('SUBMIT_LOG', "📝 Submitting log...");
     
     const user = await getCurrentUserResilient();
 
     if (!user) {
-      console.error('❌ No user found');
+      LoggingService.error('SUBMIT_LOG', '❌ No user found');
       Alert.alert('Error', 'Debes iniciar sesión.');
       return;
     }
@@ -62,14 +63,14 @@ export async function submitLog({ arrivalHour, departureHour, description, image
     let userID = (user as any)?.id;
     
     if (!userID) {
-      console.error('❌ User ID is missing. User object:', user);
+      LoggingService.error('SUBMIT_LOG', '❌ User ID is missing. User object:', user as any);
       Alert.alert('Error', 'No se pudo obtener el ID de usuario. Por favor inicia sesión nuevamente.');
       return;
     }
 
     // Validate that userID looks like a UUID (not an email)
     if (userID.includes('@')) {
-      console.error('❌ Invalid userID (contains @):', userID);
+      LoggingService.error('SUBMIT_LOG', '❌ Invalid userID (contains @):', userID);
       Alert.alert('Error', 'ID de usuario inválido. Por favor inicia sesión nuevamente.');
       return;
     }
@@ -89,12 +90,12 @@ export async function submitLog({ arrivalHour, departureHour, description, image
     await createUserLogResilient(log);
     
     const connectionStatus = isOnline() ? '✓ Sincronizado' : '⚠️ Esperando conexión';
-    console.log(`✓ Log created: ${connectionStatus}`);
+    LoggingService.info('SUBMIT_LOG', `✓ Log created: ${connectionStatus}`);
 
     Alert.alert('Éxito', `Bitácora enviada. ${!isOnline() ? '(Se sincronizará cuando tenga conexión)' : ''}`);
     onSuccess?.();
   } catch (err: any) {
-    console.error("❌ Submit log error:", err);
+    LoggingService.error('SUBMIT_LOG', "❌ Submit log error:", err);
     Alert.alert('Error', err?.message ?? String(err));
   }
 }

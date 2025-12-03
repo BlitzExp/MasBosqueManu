@@ -1,6 +1,7 @@
 import { UserLog } from '@/Modelo/UserLog';
 import NetInfo from "@react-native-community/netinfo";
 import * as localdatabase from './localdatabase';
+import { LoggingService } from './loggingService';
 import * as logService from './logService';
 import { syncManager } from './syncManager';
 
@@ -27,32 +28,32 @@ export const isConnected = async () => {
  */
 export const createUserLogResilient = async (log: UserLogInsert): Promise<UserLog> => {
   try {
-    console.log('📝 Creating log - trying Supabase first...');
+    LoggingService.info('LOG_CREATION', '📝 Creating log - trying Supabase first...');
     
     // Check if log already exists (prevent duplicates)
     const exists = await logService.logAlreadyExists(log);
     if (exists) {
-      console.warn('⚠️ Log already exists in Supabase, not creating duplicate');
+      LoggingService.warn('LOG_DUPLICATE', '⚠️ Log already exists in Supabase, not creating duplicate');
       throw new Error('Log already exists');
     }
     
     // Try online first
     const result = await logService.createUserLog(log);
-    console.log('✓ Log created in Supabase:', result.id);
+    LoggingService.info('LOG_CREATED', `✓ Log created in Supabase: ${result.id}`);
     return result;
   } catch (error) {
-    console.warn('⚠️ Supabase failed, saving locally:', error);
+    LoggingService.warn('LOG_FALLBACK', '⚠️ Supabase failed, saving locally:', error as Error);
     
     // Save to local DB for later sync
     const localLogId = await localdatabase.savePendingLog(log);
-    console.log(`✓ Log saved locally (ID: ${localLogId})`);
+    LoggingService.info('LOG_LOCAL_SAVED', `✓ Log saved locally (ID: ${localLogId})`);
     
     // IMPORTANT: Trigger sync immediately (don't wait 30 seconds)
-    console.log('🔄 Triggering immediate sync...');
+    LoggingService.info('SYNC_TRIGGER', '🔄 Triggering immediate sync...');
     try {
       await syncManager.triggerSync();
     } catch (syncError) {
-      console.warn('⚠️ Sync trigger failed (will retry on schedule):', syncError);
+      LoggingService.warn('SYNC_FAILED', '⚠️ Sync trigger failed (will retry on schedule):', syncError as Error);
     }
     
     // Return a mock UserLog object with the local ID
@@ -74,7 +75,7 @@ export const getAllUserLogsResilient = async (): Promise<UserLog[]> => {
     // Try online first
     return await logService.getAllUserLogs();
   } catch (error) {
-    console.warn('Failed to get logs from online DB, using local fallback:', error);
+    LoggingService.warn('LOGS_FALLBACK', 'Failed to get logs from online DB, using local fallback:', error as Error);
     
     // Return local pending logs as fallback
     const localLogs = await localdatabase.getPendingLogs();
@@ -94,14 +95,14 @@ export const getUserLogsResilient = async (userID: string): Promise<UserLog[]> =
     const onlineLogs = await logService.getUserLogs(userID);
     
     // Save logs to local DB for offline access
-    console.log(`💾 Caching ${onlineLogs.length} logs locally...`);
+    LoggingService.info('LOG_CACHE', `💾 Caching ${onlineLogs.length} logs locally...`);
     for (const log of onlineLogs) {
       await localdatabase.saveSyncedLog(log);
     }
     
     return onlineLogs;
   } catch (error) {
-    console.warn('Failed to get user logs from online DB, using local fallback:', error);
+    LoggingService.warn('LOG_FETCH_FALLBACK', 'Failed to get user logs from online DB, using local fallback:', error as Error);
     
     // Return local logs as fallback
     const localLogs = await localdatabase.getLocalUserLogs(userID);
@@ -117,7 +118,7 @@ export const updateUserLogResilient = async (logID: string, updates: Partial<Use
   try {
     return await logService.updateUserLog(logID, updates);
   } catch (error) {
-    console.warn('Failed to update log online:', error);
+    LoggingService.warn('LOG_UPDATE_FAILED', 'Failed to update log online:', error as Error);
     throw error;
   }
 };
@@ -129,7 +130,7 @@ export const deleteUserLogResilient = async (logID: string): Promise<boolean> =>
   try {
     return await logService.deleteUserLog(logID);
   } catch (error) {
-    console.warn('Failed to delete log online:', error);
+    LoggingService.warn('LOG_DELETE_FAILED', 'Failed to delete log online:', error as Error);
     throw error;
   }
 };

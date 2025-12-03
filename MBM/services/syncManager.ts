@@ -8,6 +8,7 @@ import * as arrivalAlertService from './arrivalAlertService';
 import { isOnline, onConnectionChange } from './connectionManager';
 import * as localdatabase from './localdatabase';
 import * as logService from './logService';
+import { LoggingService } from './loggingService';
 
 const RETRY_INTERVAL = 30000; // 30 seconds
 const MAX_RETRIES = 5;
@@ -51,17 +52,17 @@ const syncState: SyncState = {
 async function syncPendingLog(log: any): Promise<boolean> {
   const logKey = `log_${log.id}`;
   try {
-    console.log(`🔄 [${new Date().toLocaleTimeString()}] Syncing local log ${log.id} to Supabase...`);
+    LoggingService.info('SYNC_LOG', `🔄 [${new Date().toLocaleTimeString()}] Syncing local log ${log.id} to Supabase...`);
     const failCount = syncState.failedAttempts.get(logKey) || 0;
 
     // Don't retry if already synced (server_id exists)
     if (log.server_id && log.synced === 1) {
-      console.log(`⏭️ Log ${log.id} already synced (server ID: ${log.server_id}), skipping`);
+      LoggingService.info('SYNC_SKIP', `⏭️ Log ${log.id} already synced (server ID: ${log.server_id}), skipping`);
       return true;
     }
 
     if (failCount >= MAX_RETRIES) {
-      console.error(`❌ Max retries (${MAX_RETRIES}) reached for log ${log.id} - giving up`);
+      LoggingService.error('SYNC_MAX_RETRIES', `❌ Max retries (${MAX_RETRIES}) reached for log ${log.id} - giving up`);
       return false;
     }
 
@@ -77,7 +78,7 @@ async function syncPendingLog(log: any): Promise<boolean> {
     });
 
     if (logExists) {
-      console.log(`⚠️ Log already exists in Supabase for ${log.userID} on ${log.logDate}, marking as synced locally`);
+      LoggingService.info('SYNC_DUP', `⚠️ Log already exists in Supabase for ${log.userID} on ${log.logDate}, marking as synced locally`);
       // Mark as synced even though we didn't create it (it was a duplicate)
       await localdatabase.markLogAsSynced(log.id, `existing_${log.userID}_${log.logDate}`);
       syncState.stats.logsSync.success++;
@@ -98,7 +99,7 @@ async function syncPendingLog(log: any): Promise<boolean> {
       await localdatabase.markLogAsSynced(log.id, result.id);
       syncState.failedAttempts.delete(logKey);
       syncState.stats.logsSync.success++;
-      console.log(`✓ Log ${log.id} synced successfully to Supabase (server ID: ${result.id})`);
+      LoggingService.info('SYNC_SUCCESS', `✓ Log ${log.id} synced successfully to Supabase (server ID: ${result.id})`);
       return true;
     }
 
@@ -108,7 +109,7 @@ async function syncPendingLog(log: any): Promise<boolean> {
     syncState.failedAttempts.set(logKey, failCount);
     syncState.stats.logsSync.failed++;
 
-    console.error(`✗ Failed to sync log ${log.id} (attempt ${failCount}/${MAX_RETRIES}):`, error);
+    LoggingService.error('SYNC_ERROR', `✗ Failed to sync log ${log.id} (attempt ${failCount}/${MAX_RETRIES}):`, error as Error);
     return false;
   }
 }
@@ -332,7 +333,7 @@ async function syncAll(): Promise<void> {
   syncState.stats.lastSyncTime = new Date().toISOString();
 
   try {
-    console.log(`🔄 [${new Date().toLocaleTimeString()}] Starting sync cycle...`);
+    LoggingService.info('SYNC_START', `🔄 [${new Date().toLocaleTimeString()}] Starting sync cycle...`);
     
     // Check for pending items
     const pendingLogs = await localdatabase.getPendingLogs();
@@ -343,20 +344,20 @@ async function syncAll(): Promise<void> {
     const totalPending = pendingLogs.length + pendingProfiles.length + pendingEmergencies.length + pendingAlerts.length;
     
     if (totalPending === 0) {
-      console.log('✓ No pending items to sync');
+      LoggingService.info('SYNC_EMPTY', '✓ No pending items to sync');
       return;
     }
     
-    console.log(`📊 Pending items: ${pendingLogs.length} logs, ${pendingProfiles.length} profiles, ${pendingEmergencies.length} emergencies, ${pendingAlerts.length} alerts`);
+    LoggingService.info('SYNC_PENDING', `📊 Pending items: ${pendingLogs.length} logs, ${pendingProfiles.length} profiles, ${pendingEmergencies.length} emergencies, ${pendingAlerts.length} alerts`);
     
     await syncAllPendingLogs();
     await syncAllPendingProfiles();
     await syncAllPendingEmergencies();
     await syncAllPendingArrivalAlerts();
     
-    console.log(`✓ Sync cycle completed at ${new Date().toLocaleTimeString()}`);
+    LoggingService.info('SYNC_COMPLETE', `✓ Sync cycle completed at ${new Date().toLocaleTimeString()}`);
   } catch (error) {
-    console.error('❌ Error during sync cycle:', error);
+    LoggingService.error('SYNC_CYCLE_ERROR', '❌ Error during sync cycle:', error as Error);
   } finally {
     syncState.isSyncing = false;
   }
@@ -370,11 +371,11 @@ export const syncManager = {
    */
   start(): void {
     if (syncState.isRunning) {
-      console.log('✓ Sync manager already running');
+      LoggingService.info('SYNC_MANAGER', '✓ Sync manager already running');
       return;
     }
 
-    console.log('🚀 Starting background sync manager...');
+    LoggingService.info('SYNC_MANAGER', '🚀 Starting background sync manager...');
     syncState.isRunning = true;
 
     // Run sync immediately
@@ -390,14 +391,14 @@ export const syncManager = {
     // Listen to connection changes
     syncState.unsubscribeConnectionListener = onConnectionChange((isOnlineNow) => {
       if (isOnlineNow) {
-        console.log('🔌 Connection restored! Triggering sync...');
+        LoggingService.info('SYNC_CONNECTION', '🔌 Connection restored! Triggering sync...');
         syncAll();
       } else {
-        console.log('📡 Connection lost. Going offline mode.');
+        LoggingService.info('SYNC_CONNECTION', '📡 Connection lost. Going offline mode.');
       }
     });
 
-    console.log('✓ Sync manager started');
+    LoggingService.info('SYNC_MANAGER', '✓ Sync manager started');
   },
 
   /**
@@ -405,11 +406,11 @@ export const syncManager = {
    */
   stop(): void {
     if (!syncState.isRunning) {
-      console.log('ℹ️ Sync manager not running');
+      LoggingService.info('SYNC_MANAGER', 'ℹ️ Sync manager not running');
       return;
     }
 
-    console.log('⏹️ Stopping background sync manager...');
+    LoggingService.info('SYNC_MANAGER', '⏹️ Stopping background sync manager...');
 
     if (syncState.intervalId) {
       clearInterval(syncState.intervalId);
@@ -422,14 +423,14 @@ export const syncManager = {
     }
 
     syncState.isRunning = false;
-    console.log('✓ Sync manager stopped');
+    LoggingService.info('SYNC_MANAGER', '✓ Sync manager stopped');
   },
 
   /**
    * Manually trigger a sync
    */
   async triggerSync(): Promise<void> {
-    console.log('🔄 Manually triggering sync...');
+    LoggingService.info('SYNC_MANUAL', '🔄 Manually triggering sync...');
     await syncAll();
   },
 

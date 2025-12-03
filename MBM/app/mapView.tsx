@@ -7,7 +7,7 @@ import MapView, { Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import NavigationBar from '../components/ui/NavigationBar';
 import { fetchMapPins } from '../Controlador/mapPinsController';
 import { MapPin } from '../Modelo/MapPins';
-import { debugLog } from '../services/debugLogger';
+import { LoggingService } from '../services/loggingService';
 
 import { useEffect, useState } from 'react';
 
@@ -50,7 +50,7 @@ export default function MapScreen() {
         });
 
       } catch (error) {
-        console.error("Error getting location:", error);
+        LoggingService.error('MAP_LOCATION', "Error getting location:", error as Error);
          setInitialRegion({
           latitude: 20.630117,
           longitude: -103.555317,
@@ -64,12 +64,12 @@ export default function MapScreen() {
   useEffect(() => {
     const loadPins = async () => {
       try {
-        debugLog.info('🗺️ Loading map pins...');
+        LoggingService.info('MAP_PINS', '🗺️ Loading map pins...');
         const fetched = await fetchMapPins();
         setPins(fetched);
-        debugLog.info(`✓ Map display: ${fetched.length} pins`);
+        LoggingService.info('MAP_PINS', `✓ Map display: ${fetched.length} pins`);
       } catch (err) {
-        debugLog.error('Error loading map pins:', err);
+        LoggingService.error('MAP_PINS', 'Error loading map pins:', err as Error);
         setPins([]);
       }
     };
