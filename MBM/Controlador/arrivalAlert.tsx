@@ -58,7 +58,7 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
     }
 }
 
-export const getPendingArrivalAlertsResilient = async () => {
+export const getPendingArrivalAlerts = async () => {
     try {
         return await svcGetPendingArrivalAlerts();
     } catch (error) {
@@ -66,14 +66,14 @@ export const getPendingArrivalAlertsResilient = async () => {
     }
 };
 
-export const acceptArrivalAlertResilient = async (id: number) => {
+export const acceptArrivalAlert = async (id: number) => {
     try {
         return await svcAcceptArrivalAlert(id);
     } catch (error) {
         return null;
     }
 };
-export const subscribeToPendingArrivalAlertsResilient = async (
+export const subscribeToPendingArrivalAlerts = async (
     callback: (change: any) => void
 ): Promise<() => void> => {
     return svcSubscribeToPendingArrivalAlerts(callback as any);
