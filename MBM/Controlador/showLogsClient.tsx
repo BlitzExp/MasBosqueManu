@@ -3,6 +3,7 @@ import { isOnline } from '@/services/connectionManager';
 import { getCurrentUserResilient } from '@/services/resilientAuthService';
 import { getUserLogsResilient } from '@/services/resilientLogService';
 import { router } from 'expo-router';
+import { LoggingService } from '@/services/loggingService';
 
 export function showLogsController() {
 
@@ -12,17 +13,17 @@ export function showLogsController() {
             const userLogs = await fetchLogs();
             return userLogs;
         } catch (err) {
-            console.error('Error loading logs:', err);
+            LoggingService.error('Error al cargar los logs:', err);
             return;
         }
     };
 
     const fetchLogs = async (): Promise<UserLog[]> => {
         try {
-            console.log("📝 Fetching user logs...");
+            LoggingService.info("Cargando logs de usuario...");
             const user = await getCurrentUserResilient();
             if (!user) {
-                console.warn('❌ No user found, redirecting to login');
+                LoggingService.warn('No se encontró usuario, redirigiendo al inicio de sesión');
                 router.replace('/logIn');
                 return [];
             }
@@ -30,10 +31,10 @@ export function showLogsController() {
             // 💾 getUserLogsResilient automatically caches logs locally for offline access
             const logs = await getUserLogsResilient(userId);
             const connectionStatus = isOnline() ? '✓ En línea' : '⚠️ Modo offline';
-            console.log(`📊 Logs loaded (${connectionStatus}):`, logs.length);
+            LoggingService.info(`Logs cargados (${connectionStatus}):`, logs.length);
             return logs;
         } catch (err: any) {
-            console.error('❌ Error fetching logs:', err);
+            LoggingService.error('Error al cargar los logs:', err);
             return [];
         }
     };
@@ -53,7 +54,7 @@ export function showLogsController() {
             });
             return filtered;
         } catch (err) {
-            console.error('Error filtering logs by name:', err);
+            LoggingService.error('Error al filtrar los logs por nombre:', err);
             return [];
         }
         

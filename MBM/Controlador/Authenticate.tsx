@@ -1,4 +1,5 @@
 import { getUser, saveUser } from '@/services/localdatabase';
+import { LoggingService } from "@/services/loggingService";
 import {
   createProfileResilient,
   getCurrentUserResilient,
@@ -14,6 +15,7 @@ export function useAuthController() {
 
   const login = async (email: string, password: string) => {
     if (!email || !password) {
+      LoggingService.error("Error, correo o contraseña daltantes");
       Alert.alert("Error", "Por favor llena todos los campos.");
       return { success: false };
     }
@@ -21,13 +23,14 @@ export function useAuthController() {
     try {
       const { user } = (await signInResilient(email, password)) ?? {};
 
-      console.log('Logged user:', user);
+      LoggingService.info("Usuario logueado:", user);
 
       await storeUserData();
 
       router.replace('/mapView');
       return { success: true };
     } catch (err: any) {
+      LoggingService.error("Error al iniciar sesión:", err);
       Alert.alert('Error', err.message);
       return { success: false };
     }
@@ -56,21 +59,23 @@ export function useAuthController() {
       if (finalId) {
         await saveUser(finalId, finalName, finalNvisits, finalDateRegistered, finalLastVisit, finalRole);
       } else {
-        console.warn('storeUserData: no user id available to persist locally');
+          LoggingService.warn('storeUserData: no hay id de usuario disponible para guardar localmente');
       }
     } catch (err) {
-      console.error('storeUserData error', err);
+      LoggingService.error('storeUserData error', err);
     }
   }
 
 const register = async (email: string, password: string, userType: string, nameInput: string) => {
   if (!email || !password || !userType || !nameInput) {
     Alert.alert("Error", "Por favor llena todos los campos.");
+    LoggingService.error("Error, campos faltantes en el registro");
     return { success: false };
   }
 
   if (password.length < 6) {
     Alert.alert("Error", "La contraseña debe tener al menos 6 caracteres.");
+    LoggingService.error("Error, la contraseña es demasiado corta");
     return { success: false };
   }
 
@@ -78,7 +83,6 @@ const register = async (email: string, password: string, userType: string, nameI
     const signUpData = await signUpResilient(email, password);
     let user = (signUpData as any)?.user;
 
-    // If no session was created, try to sign in (user must confirm email first in many setups)
     if (!((signUpData as any)?.session)) {
       try {
         const signInData = await signInResilient(email, password);
@@ -86,7 +90,7 @@ const register = async (email: string, password: string, userType: string, nameI
       } catch (signInErr: any) {
         Alert.alert(
           'Registro creado',
-          'Cuenta creada. Confirma tu correo para continuar (profile will be created after confirmation).'
+          'Cuenta creada. Confirma tu correo para continuar.'
         );
         router.replace('/logIn');
         return { success: true };
@@ -109,6 +113,7 @@ const register = async (email: string, password: string, userType: string, nameI
     router.replace('/mapView');
     return { success: true };
   } catch (err: any) {
+    LoggingService.error("Error al registrar el usuario:", err);
     Alert.alert('Error', err.message);
     return { success: false };
   }

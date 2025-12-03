@@ -5,12 +5,13 @@ import {
     subscribeToPendingArrivalAlerts as svcSubscribePendingEmergencies
 } from "@/services/emergencyService";
 
-
+import { LoggingService } from '@/services/loggingService';
 
 export const getPendingEmergencies = async () => {
     try {
         return await svcGetPendingEmergencies();
     } catch (error) {
+        LoggingService.error("Error al obtener emergencias pendientes:", error);
         return [];
     }
 };
@@ -19,6 +20,7 @@ export const acceptEmergencyAlert = async (id: number) => {
     try {
         return await svcAcceptEmergencyAlert(id);
     } catch (error) {
+        LoggingService.error("Error al aceptar alerta de emergencia:", error);
         return null;
     }
 };
@@ -36,6 +38,7 @@ export const obtainEmergencyAlertName = async (alert: any): Promise<string> => {
         }
         return await svcMapEmergencyPointName(Number(alert.localizationID));
     } catch (error) {
+        LoggingService.error("Error al obtener el nombre del punto de emergencia:", error);
         return "Unknown Location";
     }
 };
@@ -62,6 +65,7 @@ export const getTimeSinceAlert = (alertDate: string, timeAlert: string): string 
         try {
             return new Date(s);
         } catch (e) {
+            LoggingService.error("Error al formatear la fecha:", e);
             return new Date(NaN);
         }
     };

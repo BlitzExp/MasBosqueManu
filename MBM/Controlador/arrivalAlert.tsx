@@ -5,6 +5,7 @@ import {
     subscribeToPendingArrivalAlerts as svcSubscribeToPendingArrivalAlerts,
 } from "@/services/arrivalAlertService";
 import { getUserName } from "@/services/localdatabase";
+import { LoggingService } from "@/services/loggingService";
 
 import { Alert } from "react-native";
 
@@ -28,6 +29,7 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
                     timeZone,
                 }).format(new Date());
             } catch (e) {
+                LoggingService.error("Error al formatear la hora en la zona horaria:", e);
                 return new Date().toTimeString().split(" ")[0];
             }
         };
@@ -49,10 +51,11 @@ export async function sendArrivalAlert(opts: SendArrivalOpts = {}) {
         const alert = await createArrivalAlert(dto as any);
 
         Alert.alert("La alerta de llegada ha sido enviada correctamente.");
+        LoggingService.info("Arrival alert sent successfully:", dto);
 
         return alert;
     } catch (error) {
-        console.error("Error al enviar la alerta de llegada:", error);
+        LoggingService.error("Error al enviar la alerta de llegada:", error);
         Alert.alert("Error al enviar la alerta de llegada.");
         throw error;
     }
@@ -62,6 +65,7 @@ export const getPendingArrivalAlerts = async () => {
     try {
         return await svcGetPendingArrivalAlerts();
     } catch (error) {
+        LoggingService.error("Error al obtener las alertas de llegada pendientes:", error);
         return [];
     }
 };
@@ -70,6 +74,7 @@ export const acceptArrivalAlert = async (id: number) => {
     try {
         return await svcAcceptArrivalAlert(id);
     } catch (error) {
+        LoggingService.error("Error al aceptar la alerta de llegada:", error);
         return null;
     }
 };

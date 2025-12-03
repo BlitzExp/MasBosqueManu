@@ -1,5 +1,6 @@
 import { UserLog } from '@/Modelo/UserLog';
 import * as localdatabase from '@/services/localdatabase';
+import { LoggingService } from '@/services/loggingService';
 import { getAllUserLogsResilient } from '@/services/resilientLogService';
 
 export function showLogsController() {
@@ -7,10 +8,10 @@ export function showLogsController() {
     const startScreen = async (): Promise<UserLog[] | undefined> => {
         try {
             const userLogs = await fetchLogs();
-            console.log('Admin logs loaded:', userLogs);
+            LoggingService.info('Admin logs cargados:', userLogs);
             return userLogs;
         } catch (err) {
-            console.error('Error loading logs:', err);
+            LoggingService.error('Error al cargar los logs:', err);
             return;
         }
     };
@@ -18,13 +19,12 @@ export function showLogsController() {
     const fetchLogs = async (): Promise<UserLog[]> => {
         const logs = await getAllUserLogsResilient();
         
-        // 💾 Save all logs to local DB for offline access
-        console.log(`💾 Caching ${logs.length} admin logs locally...`);
+        LoggingService.info(`Guardando ${logs.length} admin logs localmente...`);
         for (const log of logs) {
             try {
                 await localdatabase.saveSyncedLog(log);
             } catch (error) {
-                console.warn(`⚠️ Error caching log ${log.id}:`, error);
+                LoggingService.warn(`Error al guardar el log ${log.id}:`, error);
             }
         }
         
@@ -48,7 +48,7 @@ export function showLogsController() {
             });
             return filtered;
         } catch (err) {
-            console.error('Error filtering logs by name:', err);
+            LoggingService.error('Error al filtrar los logs por nombre:', err);
             return [];
         }
        

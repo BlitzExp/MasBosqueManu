@@ -1,6 +1,7 @@
 import { Profile } from '../Modelo/Profile';
 import { clearUserData, getUser as getLocalUser, saveUser as saveLocalUser } from '../services/localdatabase';
 import { getCurrentUserResilient, getProfileByIdResilient, signOutResilient } from '../services/resilientAuthService';
+import { LoggingService } from '@/services/loggingService';
 
 export async function fetchCurrentUserProfile(): Promise<Profile | null> {
 
@@ -9,6 +10,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
 
         if (!user) {
             const local = await getLocalUser();
+            LoggingService.warn('No se encontró usuario actual en el servidor, usando base de datos local');
             if (!local) return null;
             return {
                 id: local.userId,
@@ -35,12 +37,12 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
         }
 
         const profile = await getProfileByIdResilient(userId).catch(error => {
-            console.warn('Failed to fetch profile from server:', error);
+            LoggingService.warn('Error al obtener el perfil del usuario:', error);
             return null;
         });
 
         if (!profile) {
-            console.warn('Profile not found on server');
+            LoggingService.warn('Perfil no encontrado en el servidor');
             const local = await getLocalUser();
             if (!local) return null;
             return {
@@ -63,7 +65,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
                 profile.role ?? ''
             );
         } catch (saveErr) {
-            console.warn('Failed to save profile locally:', saveErr);
+            LoggingService.warn('Error al guardar el perfil localmente:', saveErr);
         }
 
         return {
@@ -76,7 +78,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
             startSessionTime: profile.startSessionTime ?? null,
         } as Profile;
     } catch (e) {
-        console.warn('fetchCurrentUserProfile error:', e);
+        LoggingService.warn('fetchCurrentUserProfile error:', e);
         try {
             const local = await getLocalUser();
             if (!local) return null;
@@ -89,7 +91,7 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
                 role: local.role ?? null,
             } as Profile;
         } catch (localErr) {
-            console.error('Failed to read local user after error:', localErr);
+            LoggingService.error('Error al leer el usuario local después de un error:', localErr);
             return null;
         }
     }
@@ -97,18 +99,18 @@ export async function fetchCurrentUserProfile(): Promise<Profile | null> {
 
 export async function logoutCurrentUser(): Promise<void> {
     try {
-        console.log('🚪 Signing out...');
+        LoggingService.info('Cerrando sesion...');
         await signOutResilient();
-        console.log('✓ Sign out successful');
+        LoggingService.info('Se cerro sesion correctamente');
     } catch (e) {
-        console.warn('Sign out error:', e);
+        LoggingService.warn('Error al cerrar sesion:', e);
     }
 
     try {
         await clearUserData();
-        console.log('✓ User data cleared');
+        LoggingService.info('Datos de usuario borrados correctamente');
     } catch (e) {
-        console.error('Failed to clear user data:', e);
+        LoggingService.error('Error al borrar los datos de usuario:', e);
         throw e;
     }
 }

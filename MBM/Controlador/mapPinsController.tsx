@@ -4,29 +4,26 @@ import {
     initDatabase,
 } from '@/services/localdatabase';
 import { getAllMapPinsResilient } from '@/services/resilientPinsService';
+import { LoggingService } from '@/services/loggingService';
 
 export async function fetchMapPins(): Promise<MapPin[]> {
     try {
-        console.log('📍 Starting fetchMapPins...');
+        console.log('Obteniendo pines del mapa');
         await initDatabase();
-
         const mapPins = await getAllMapPinsResilient();
-        console.log(`✓ Fetched ${mapPins.length} map pins successfully`);
         return mapPins;
     } catch (error) {
-        console.error('❌ Error fetching map pins:', error);
+        LoggingService.error('Error al obtener pines del mapa:', error);
         try {
-            console.log('📍 Attempting to load from local cache...');
+            console.log('Intentando cargar desde la cache local...');
             await initDatabase();
             const cached = await getPinsLocations();
             if (cached && cached.length > 0) {
-                console.log(`✓ Loaded ${cached.length} pins from local cache`);
                 return cached;
             }
-            console.warn('⚠️ No cached map pins found');
             return [];
         } catch (localErr) {
-            console.error('❌ Error reading local cache:', localErr);
+            LoggingService.error('Error al leer la cache local:', localErr);
             return [];
         }
     }

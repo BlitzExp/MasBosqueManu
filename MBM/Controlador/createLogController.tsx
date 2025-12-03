@@ -17,20 +17,20 @@ export function getCurrentTimeString() {
 
 export async function clockIn(setArrivalHour: (value: string) => void) {
   try {
-    LoggingService.info('CLOCK_IN', "⏱️ Clocking in");
+    LoggingService.info('CLOCK_IN', "Clocking in");
     setArrivalHour(getCurrentTimeString());
     await increseProfileVisits();
     await updateLastVisit();
-    LoggingService.info('CLOCK_IN', "✓ Clock in successful");
+    LoggingService.info('CLOCK_IN', "Clock in successful");
   } catch (error) {
-    LoggingService.error('CLOCK_IN', "❌ Clock in error:", error as Error);
+    LoggingService.error('CLOCK_IN', "Clock in error:", error as Error);
     Alert.alert('Error', 'No se pudo registrar entrada');
   }
 }
 
 export function clockOut(setDepartureHour: (value: string) => void) {
   setDepartureHour(getCurrentTimeString());
-  LoggingService.info('CLOCK_OUT', "⏱️ Clocking out");
+  LoggingService.info('CLOCK_OUT', "Clocking out");
 }
 
 type SubmitParams = {
@@ -43,12 +43,12 @@ type SubmitParams = {
 
 export async function submitLog({ arrivalHour, departureHour, description, image, onSuccess }: SubmitParams) {
   try {
-    LoggingService.info('SUBMIT_LOG', "📝 Submitting log...");
+    LoggingService.info('SUBMIT_LOG', "Submitting log...");
     
     const user = await getCurrentUserResilient();
 
     if (!user) {
-      LoggingService.error('SUBMIT_LOG', '❌ No user found');
+      LoggingService.error('SUBMIT_LOG', 'No user found');
       Alert.alert('Error', 'Debes iniciar sesión.');
       return;
     }
@@ -63,14 +63,14 @@ export async function submitLog({ arrivalHour, departureHour, description, image
     let userID = (user as any)?.id;
     
     if (!userID) {
-      LoggingService.error('SUBMIT_LOG', '❌ User ID is missing. User object:', user as any);
+      LoggingService.error('SUBMIT_LOG', 'User ID is missing. User object:', user as any);
       Alert.alert('Error', 'No se pudo obtener el ID de usuario. Por favor inicia sesión nuevamente.');
       return;
     }
 
     // Validate that userID looks like a UUID (not an email)
     if (userID.includes('@')) {
-      LoggingService.error('SUBMIT_LOG', '❌ Invalid userID (contains @):', userID);
+      LoggingService.error('SUBMIT_LOG', 'Invalid userID (contains @):', userID);
       Alert.alert('Error', 'ID de usuario inválido. Por favor inicia sesión nuevamente.');
       return;
     }
@@ -89,13 +89,13 @@ export async function submitLog({ arrivalHour, departureHour, description, image
 
     await createUserLogResilient(log);
     
-    const connectionStatus = isOnline() ? '✓ Sincronizado' : '⚠️ Esperando conexión';
-    LoggingService.info('SUBMIT_LOG', `✓ Log created: ${connectionStatus}`);
+    const connectionStatus = isOnline() ? 'Sincronizado' : 'Esperando conexión';
+    LoggingService.info('SUBMIT_LOG', `Log created: ${connectionStatus}`);
 
     Alert.alert('Éxito', `Bitácora enviada. ${!isOnline() ? '(Se sincronizará cuando tenga conexión)' : ''}`);
     onSuccess?.();
   } catch (err: any) {
-    LoggingService.error('SUBMIT_LOG', "❌ Submit log error:", err);
+    LoggingService.error('SUBMIT_LOG', "Submit log error:", err);
     Alert.alert('Error', err?.message ?? String(err));
   }
 }
